@@ -1,0 +1,18 @@
+{
+  "name": "smart-contracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build_bin": "solcjs --bin -o bin src/*",
+    "build_abi": "solcjs --abi -o abi src/*",
+    "start": "npm run build_bin && npm run build_abi"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "solc": "^0.4.19"
+  }
+}
