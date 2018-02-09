@@ -1,8 +1,8 @@
 const path = require('path')
 const fs = require('fs')
 
-const abi = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../smart-contracts/abi/src_RBAC_sol_RBAC.abi')))
-const data = fs.readFileSync(path.resolve(__dirname, '../smart-contracts/bin/src_RBAC_sol_RBAC.bin'))
+const abi = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../smart-contracts/abi/src_Permission-managment_sol_RBAC.abi')))
+const data = fs.readFileSync(path.resolve(__dirname, '../smart-contracts/bin/src_Permission-managment_sol_RBAC.bin'))
 console.log(abi, data)
 
 const Web3 = require('web3')

@@ -1,6 +1,6 @@
 const path = require('path')
 const fs = require('fs')
-const abi = require('./smart-contracts/RBAC_sol_RBAC.abi.json')
+const abi = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../smart-contracts/abi/src_Permission-managment_sol_RBAC.abi')))
 const Web3 = require('web3')
 const web3 = new Web3('http://localhost:8545')
 
@@ -18,21 +18,25 @@ const main = async () => {
   const removePermission = (...args) => myContract.methods.adminRemovePermission(...args).send()
   const hasPermission = (...args) => myContract.methods.hasPermission(...args).call()
   const getAdmin = () => myContract.methods.owner().call()
+  const getPermissionNames = (...args) => myContract.methods.permissionNames(...args).call()
+  const getPermissionByAddress = (...args) => myContract.methods.permissionstoadd(...args).call()
 
   return {
     addPermission,
     removePermission,
     hasPermission,
-    getAdmin
+    getAdmin,
+    getPermissionNames,
+    getPermissionByAddress
   }
 }
 
 module.exports = main()
 .catch(console.error)
-.then(async ({ addPermission, hasPermission, getAdmin }) => {
+.then(async ({ addPermission, hasPermission, getAdmin, getPermissionNames, getPermissionByAddress }) => {
   const newUserAcc = web3.eth.accounts.create()
-  // console.log(newUserAcc)
-  const a = await addPermission(newUserAcc.address, 'file1.txt')
+  console.log(newUserAcc)
+  const a = await addPermission(newUserAcc.address, 'file2.txt')
   .on('transactionHash', (hash) => {
     console.log('transactionHash')
   })
@@ -45,5 +49,7 @@ module.exports = main()
   .on('error', err => { throw new Error('ERRRRRRRROOOOOORRRRRR' + err) })
   // const b = await hasPermission(newUserAcc.address, 'file2.txt')
   // const o = await getAdmin()
-  // console.log(a)
+  // const n = await getPermissionNames(0)
+  const p = await getPermissionByAddress(newUserAcc.address)
+  console.log(p)
 })
