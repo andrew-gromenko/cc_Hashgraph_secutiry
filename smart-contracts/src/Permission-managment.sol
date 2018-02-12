@@ -4,7 +4,6 @@ import "./Permissions.sol";
 
 contract RBAC {
   mapping (bytes32 => mapping(address => bool)) public permissions;
-  bytes[] public permissionNames;
 
   event PermissionAdded(address addr, bytes32 PermissionName);
   event PermissionRemoved(address addr, bytes32 PermissionName);
@@ -47,4 +46,3 @@ contract RBAC {
     _;
   }
 }
-
