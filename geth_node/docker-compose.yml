@@ -1,8 +1,6 @@
 version: '2'
 services:
   geth:
-    image: ethereum/client-go
-    entrypoint: geth
-    command: --dev --rpc --rpcaddr "0.0.0.0" --rpcport 8545
+    build: .
     ports:
       - "8545:8545"

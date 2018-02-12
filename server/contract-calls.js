@@ -29,11 +29,11 @@ const main = async () => {
 
 module.exports = main()
 .catch(console.error)
-.then(async ({ addPermission, hasPermission, getAdmin, getPermissions }) => {
-  const newUserAcc = web3.eth.accounts.create()
-  console.log(newUserAcc)
-  const a = await addPermission(newUserAcc.address, web3.utils.utf8ToHex('file2.txt'))
-  const b = await hasPermission(newUserAcc.address, web3.utils.utf8ToHex('file2.txt'))
-  const c = await hasPermission(newUserAcc.address, web3.utils.utf8ToHex('file.txt'))
-  console.log(a, b, c)
-})
+// .then(async ({ addPermission, hasPermission, getAdmin, getPermissions }) => {
+//   const newUserAcc = web3.eth.accounts.create()
+//   console.log(newUserAcc)
+//   const a = await addPermission(newUserAcc.address, web3.utils.utf8ToHex('file2.txt'))
+//   const b = await hasPermission(newUserAcc.address, web3.utils.utf8ToHex('file2.txt'))
+//   const c = await hasPermission(newUserAcc.address, web3.utils.utf8ToHex('file.txt'))
+//   console.log(a, b, c)
+// })
