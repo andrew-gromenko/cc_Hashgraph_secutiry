@@ -1,0 +1,61 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John",
+      "role": "admin"
+    },
+    {
+      "id": 2,
+      "name": "Matt"
+    },
+    {
+      "id": 3,
+      "name": "Bill"
+    }
+  ],
+  "files": [
+    {
+      "id": 1,
+      "userId": 1,
+      "name": "filename",
+      "allowed": false
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "name": "filename1",
+      "allowed": true
+    },
+    {
+      "id": 3,
+      "userId": 2,
+      "name": "filename2",
+      "allowed": true
+    },
+    {
+      "id": 4,
+      "userId": 2,
+      "name": "filename3",
+      "allowed": true
+    },
+    {
+      "id": 5,
+      "userId": 3,
+      "name": "filename4",
+      "allowed": false
+    }
+  ],
+  "groups": [
+    {
+      "name": "Group1",
+      "userIds": [1,2,3],
+      "fileIds": [1,2]
+    },
+    {
+      "name": "Group2",
+      "userIds": [2,3],
+      "fileIds": [3,4,5]
+    }
+  ]
+}
