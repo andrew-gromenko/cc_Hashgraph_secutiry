@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon api/index.js",
     "deploy": "node deploy.js"
   },
   "author": "",
@@ -14,8 +15,11 @@
     "dotenv": "^5.0.0",
     "express": "^4.16.2",
     "mongoose": "^5.0.4",
+    "nodemon": "^1.14.12",
     "restify": "^6.3.4",
     "standard": "^10.0.3",
+    "supertest": "^3.0.0",
+    "tape": "^4.8.0",
     "web3": "^1.0.0-beta.29"
   },
   "devDependencies": {

@@ -8,5 +8,5 @@ const User = new Schema({
   }
 })
 
-const UserModel = mongoose.model('Group', User)
+const UserModel = mongoose.model('User', User)
 module.exports = UserModel
