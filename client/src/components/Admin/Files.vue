@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+v-flex
   popup(title="Add file", :show="addPopup", @closed="addPopup = false")
     add-file
   v-list

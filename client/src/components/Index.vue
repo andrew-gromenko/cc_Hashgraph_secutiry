@@ -2,7 +2,7 @@
 v-list(subheader)
   template(v-for="group in groups")
     v-subheader {{group.name}}
-    v-list-tile(v-for="file in group.fileIds")
+    v-list-tile(v-for="file in group.fileIds", :key="file")
         v-list-tile-title {{file}}
         v-btn(icon, @click='download(file)')
             v-icon file_download

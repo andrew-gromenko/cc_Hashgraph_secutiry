@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+v-flex
   popup(title="Register user", :show="addPopup", @closed="addPopup = false")
     add-group
   v-list

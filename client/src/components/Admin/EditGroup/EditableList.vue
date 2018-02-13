@@ -1,7 +1,7 @@
 <template lang="pug">
 v-list(subheader)
   v-subheader {{title}}
-  v-list-tile(v-for="item in items")
+  v-list-tile(v-for="item in items", :key="item")
     v-list-tile-content
       v-list-tile-title(v-text="item")
     v-list-tile-action

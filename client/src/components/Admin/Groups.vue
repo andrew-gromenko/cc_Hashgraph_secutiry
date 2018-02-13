@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+v-flex
   popup(title="Add group", :show="addPopup", @closed="addPopup = false")
     add-group
   popup(title="Edit group", :show="groupEditPopup", @closed="groupEditPopup = false; editedGroup = null")
