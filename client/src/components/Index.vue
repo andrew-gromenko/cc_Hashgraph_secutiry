@@ -2,8 +2,8 @@
 v-list(subheader)
   template(v-for="group in groups")
     v-subheader {{group.name}}
-    v-list-tile(v-for="file in group.fileIds", :key="file")
-        v-list-tile-title {{file}}
+    v-list-tile(v-for="file in group.files", :key="file.id")
+        v-list-tile-title {{file.name}}
         v-btn(icon, @click='download(file)')
             v-icon file_download
 </template>
@@ -21,8 +21,7 @@ export default {
     }
   },
   async mounted () {
-    // this.files = await this.$http('get', `/api/files?userId=${this.$auth.getUser().id}`)
-    this.groups = await this.$http('get', `/api/groups`)
+    this.groups = await this.$http('get', `/api/groups/user/${this.$auth.getUser().id}`)
   }
 }
 </script>

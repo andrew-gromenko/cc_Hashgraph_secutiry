@@ -2,14 +2,19 @@
 v-flex
   popup(title="Add group", :show="addPopup", @closed="addPopup = false")
     add-group
-  popup(title="Edit group", :show="groupEditPopup", @closed="groupEditPopup = false; editedGroup = null")
+  popup(title="Edit group", :show="groupEditPopup", @closed="groupEditPopup = false")
     edit-group(:group="editedGroup")
+  confirm-dialog(:title="'Do you want to delete the '+(deletedGroup?deletedGroup.name:'')+' group?'",
+                :show="confirmDeleteDialog",
+                @canceled="confirmDeleteDialog = false",
+                @confirmed="confirmDeleteDialog = false; deleteGroupConfirm()"
+  )
   v-list
       v-list-tile(v-for='group in groups', :key='group.id')
           v-list-tile-title(v-text='group.name')
-          v-btn(icon, @click='editedGroup = group')
+          v-btn(icon, @click='editGroup(group)')
               v-icon edit
-          v-btn(icon, @click='')
+          v-btn(icon, @click='deleteGroup(group)')
               v-icon delete
   add-button(@click="addPopup = true")
 </template>
@@ -19,6 +24,7 @@ import AddGroup from './AddGroup.vue'
 import EditGroup from './EditGroup/EditGroup.vue'
 import Popup from '../../core/components/Popup'
 import AddButton from '../../core/components/AddButton.vue'
+import ConfirmDialog from '../../core/components/ConfirmDialog'
 
 export default {
   data () {
@@ -26,14 +32,23 @@ export default {
       groups: [],
       addPopup: false,
       groupEditPopup: false,
-      editedGroup: null
+      confirmDeleteDialog: false,
+      editedGroup: null,
+      deletedGroup: null
     }
   },
-  watch: {
-    editedGroup (val) {
-      if (val) {
-        this.groupEditPopup = true
-      }
+  methods: {
+    editGroup (group) {
+      this.editedGroup = group
+      this.groupEditPopup = true
+    },
+    deleteGroup (group) {
+      this.deletedGroup = group
+      this.confirmDeleteDialog = true
+    },
+    async deleteGroupConfirm () {
+      // await this.$http('delete', '/api/groups/'+deletedGroup.id);
+      console.log('deleteGroupConfirm')
     }
   },
   async mounted () {
@@ -43,7 +58,8 @@ export default {
     AddGroup,
     EditGroup,
     AddButton,
-    Popup
+    Popup,
+    ConfirmDialog
   }
 }
 </script>

@@ -3,9 +3,9 @@ div
   //v-subheader Group name: {{group.name}}
   v-layout(row)
     v-flex.sm6
-      editable-list(:items="files", target="files", title="Files", label="Search file by name")
+      editable-list(v-if="group", :groupId="group.id", :ids="group.fileIds", target="file", title="Files", label="Search file by name")
     v-flex.sm6
-      editable-list(:items="users", target="users", title="Users", label="Search user by name")
+      editable-list(v-if="group", :groupId="group.id", :ids="group.userIds", target="user", title="Users", label="Search user by name")
 </template>
 
 <script>
@@ -17,14 +17,6 @@ export default {
     return {
       files: [],
       users: []
-    }
-  },
-  watch: {
-    group (val) {
-      if (!val) return
-
-      this.files = this.group.fileIds
-      this.users = this.group.userIds
     }
   },
   components: {
