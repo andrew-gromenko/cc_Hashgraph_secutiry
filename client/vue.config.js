@@ -1,4 +1,5 @@
-const port = require('../../config.json').dev.api.port
+const port = require('../config.json').dev.api.port
+console.log(port)
 
 module.exports = {
   lintOnSave: true,

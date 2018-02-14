@@ -10,8 +10,12 @@ export default {
 
       },
       async auth () {
-        const userId = 1// localStorage.
-        user = await $http('get', '/api/users/' + userId)
+        const userId = '5a82d3ea8854aa7bae1a4f17' // localStorage.
+        user = {
+          id: userId,
+          username: 'asdf',
+          role: 'admin'
+        }
       },
       isAuth () {
         return user !== null
