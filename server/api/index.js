@@ -7,6 +7,9 @@ const User = require('../models/User')
 const mongoose = require('mongoose')
 require('dotenv').config()
 
+const port = require('../../config.json').dev.api.port;
+
+
 // PREREQUISITES
 app.use(bodyParser.json())
 mongoose.connect(process.env.MONGO_URI, {
@@ -82,7 +85,7 @@ app.get('/file', async (req, res) => {
   }
 })
 
-app.listen(3000, () => console.log('listening on port 3000'))
+app.listen(port, () => console.log('listening on port 3000'))
 
 module.exports = app
 // CREATE
