@@ -49,7 +49,8 @@ export default {
   },
   methods: {
     async addItem (id) {
-      const item = await this.$http('patch', '/api/group/' + this.groupId + '/add/' + this.target + '/' + id)
+      console.log(id)
+      const item = await this.$http('patch', `/api/groups/${this.groupId}`, { [this.target + 'Id']: id })
 
       if (this.items.find(i => i.id === item.id)) {
         this.$eventBus.$emit('notify', this.target + ' already exist')
@@ -64,7 +65,8 @@ export default {
     },
     async querySelections (query) {
       this.loading = true
-      this.searchItems = await this.$http('get', '/api/' + this.target + 's/search/' + query)
+      this.searchItems = await this.$http('get', `/api/${this.target}s?substr=${query}`)
+      console.log(this.searchItems)
       this.loading = false
     }
   }

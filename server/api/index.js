@@ -1,31 +1,10 @@
-const express = require('express')
-const app = express()
-const bodyParser = require('body-parser')
 const Group = require('../models/Group')
 const File = require('../models/File')
 const User = require('../models/User')
-const mongoose = require('mongoose')
-require('dotenv').config()
-
-const port = require('../../config.json').dev.api.port;
-
-
-// PREREQUISITES
-app.use(bodyParser.json())
-mongoose.connect(process.env.MONGO_URI, {
-  auth: {
-    user: process.env.MONGO_USER,
-    password: process.env.MONGO_PASS
-  }
-})
-mongoose.connection.once('open', () => {
-  console.log('Connected to DB')
-})
-
-app.get('/files')
+const router = require('express').Router()
 
 // CREATE
-app.post('/group', async (req, res) => {
+router.post('/groups', async (req, res) => {
   const { name, tresorId } = req.body
 
   if (!name || typeof name !== 'string') {
@@ -43,7 +22,7 @@ app.post('/group', async (req, res) => {
   }
 })
 
-app.post('/file', async (req, res) => {
+router.post('/files', async (req, res) => {
   const { name, encryptedString } = req.body
 
   if (!name || typeof name !== 'string') {
@@ -61,7 +40,7 @@ app.post('/file', async (req, res) => {
   }
 })
 
-app.post('/user', async (req, res) => {
+router.post('/users', async (req, res) => {
   const { username } = req.body
 
   if (!username || typeof username !== 'string') {
@@ -75,57 +54,120 @@ app.post('/user', async (req, res) => {
     res.status(400).end(err.message)
   }
 })
+// CREATE
 
-app.get('/file', async (req, res) => {
+// GET
+router.get('/files', async (req, res) => {
+  const { substr } = req.query
+  let find = {}
+  if (substr) {
+    find = { name: { $regex: req.query.substr, $options: 'i' } }
+  }
+  // check if this is admin
+  const files = await File.find(find)
+  res.json(files)
+})
+router.get('/groups', async (req, res) => {
+  const { userId } = req.query
+  let find = {}
+  if (userId) {
+    find['userId'] = userId
+  }
+  const groups = await Group.find(find).populate('fileIds')
+
+  res.json(groups)
+})
+router.get('/users', async (req, res) => {
+  const { substr } = req.query
+  let find = {}
+  if (substr) {
+    find = { name: { $regex: req.query.substr, $options: 'i' } }
+  }
+  const users = await User.find(find)
+  res.json(users)
+})
+// GET
+
+// fuzzy search
+router.get('/files', async (req, res) => {
   try {
-    const files = await Group.find({ name: { $regex: req.query.substr, $options: 'i' } })
+    const files = await File.find()
     res.json(files)
   } catch (err) {
     res.status(400).end(err.message)
   }
 })
 
-app.listen(port, () => console.log('listening on port 3000'))
+// // UPDATE GROUP - add fileId or userId to a group
+router.patch('/groups/:groupId', async (req, res) => {
+  const { fileId, userId } = req.body
+  const { groupId } = req.params
+  const fileC = await File.count({ _id: fileId })
+  const userC = await File.count({ _id: userId })
 
-module.exports = app
-// CREATE
-
-app.get('/group/:userId', async (req, res) => {
-  const { userId } = req.params
-
-  if (!userId && typeof userId !== 'string') {
-    res.status('400').end('Invalid userId')
+  if (typeof fileId !== 'string' && typeof groupId !== 'string' && !fileId && groupId) {
+    res.status(400).end('Invalid fileId or groupId')
   }
 
-  // Groups which contains user with that Id
-  if (userId) {
-    // replace file ids to files object with ids and names but without encrypted string
-    const groups = await Group.find({ userIds: userId })
-    res.json(groups)
+  if (fileC === 0 || userC === 0) {
+    res.status(400).end('Invalid fileId or groupId')
   }
-  // All groups
-  const groups = await Group.find()
-  res.json(groups)
+
+  const update = {}
+  if (fileId && typeof fileId === 'string') {
+    update['fileId'] = fileId
+  }
+  if (userId && typeof userId === 'string') {
+    update['userId'] = userId
+  }
+
+  Group.findByIdAndUpdate(groupId, { $addToSet: update })
 })
 
-// // UPDATE GROUP - add fileId or userId to a group
-// app.patch('/group/:groupId', (req, res) => {
-//   const { fileId, userId } = req.body
-//   const { groupId } = req.body
-//   const update = {}
-//   if (fileId && typeof fileId === 'string') {
-//     update['fileId'] = fileId
-//   }
-//   if (userId && typeof userId === 'string') {
-//     update['userId'] = userId
+// // REMOVE GROUP or remove fileId or userId from a group
+router.delete('/groups/:groupId', async (req, res) => {
+  const { fileId, userId } = req.body
+  const fileC = await File.count({ _id: fileId })
+  const userC = await File.count({ _id: userId })
+  if (fileC === 0 || userC === 0) {
+    res.status(400).end('fileId or userId is invalid')
+  }
+
+  const { groupId } = req.body
+  const update = {}
+  if (fileId && typeof fileId === 'string') {
+    update['fileId'] = [fileId]
+  }
+  if (userId && typeof userId === 'string') {
+    update['userId'] = [userId]
+  }
+
+  if (typeof fileId !== 'string' && typeof groupId !== 'string' && !fileId && groupId) {
+    res.status(400).end('Invalid fileId or groupId')
+  }
+
+  Group.findByIdAndUpdate(groupId, { $pull: update })
+})
+
+// router.get('/file/:userId', async (req, res) => {
+//   const { userId } = req.params
+
+//   if (!userId && typeof userId !== 'string') {
+//     res.status('400').end('Invalid userId')
 //   }
 
-//   if (typeof fileId !== 'string' && typeof groupId !== 'string' && !fileId && groupId) {
-//     res.status(400).end('Invalid fileId or groupId')
+//   // Groups which contains user with that Id
+//   if (userId) {
+//     // replace file ids to files object with ids and names but without encrypted string
+//     const groups = await Group.find({ userIds: userId })
+//     res.json(groups)
 //   }
-
-//   Group.findByIdAndUpdate(groupId, { $addToSet: update })
+//   // All groups
+//   const groups = await Group.find()
+//   res.json(groups)
 // })
+
+module.exports = router
 
 // app.get('/files/:id', async (req, res) => {
 //   const { id } = req.params
@@ -153,7 +195,6 @@ app.get('/group/:userId', async (req, res) => {
 // })
 
 // // route for removal of files and group
-// // route for addition [files, users] - PATCH
 // // route to get files by id
 // // get encrypted string by fileId
 // // creation of user, files, groups

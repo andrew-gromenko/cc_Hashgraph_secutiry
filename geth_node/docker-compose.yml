@@ -4,3 +4,7 @@ services:
     build: .
     ports:
       - "8545:8545"
+    volumes:
+      # - "./files/geth:/root/.ethereum/geth"
+      - "./files/keystore:/root/.ethereum/keystore"
+      - "./files/password:/root/.ethereum/password"
