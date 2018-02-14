@@ -1,6 +1,5 @@
 <template lang="pug">
 v-navigation-drawer(
-  v-if="$auth.isAuth()"
   temporary
   v-model="drawer"
   absolute
@@ -11,7 +10,7 @@ v-navigation-drawer(
         v-list-tile-avatar
           img(src="https://randomuser.me/api/portraits/men/85.jpg")
         v-list-tile-content
-          v-list-tile-title {{$auth.getUser().name}}
+          v-list-tile-title {{$auth.getUser().username}}
   v-list.pt-0(dense='')
     v-divider
     v-list-tile(v-for='item in items', :key='item.title', :to="item.route", v-if="isShown(item)")

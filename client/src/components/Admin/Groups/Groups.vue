@@ -1,7 +1,7 @@
 <template lang="pug">
 v-flex
   popup(title="Add group", :show="addPopup", @closed="addPopup = false")
-    add-group
+    add-group(@onSubmit="onSubmit")
   popup(title="Edit group", :show="groupEditPopup", @closed="groupEditPopup = false")
     edit-group(:group="editedGroup")
   confirm-dialog(:title="'Do you want to delete the '+(deletedGroup?deletedGroup.name:'')+' group?'",
@@ -22,9 +22,9 @@ v-flex
 <script>
 import AddGroup from './AddGroup.vue'
 import EditGroup from './EditGroup/EditGroup.vue'
-import Popup from '../../core/components/Popup'
-import AddButton from '../../core/components/AddButton.vue'
-import ConfirmDialog from '../../core/components/ConfirmDialog'
+import Popup from '@/core/components/Popup'
+import AddButton from '@/core/components/AddButton.vue'
+import ConfirmDialog from '@/core/components/ConfirmDialog'
 
 export default {
   data () {
@@ -47,8 +47,12 @@ export default {
       this.confirmDeleteDialog = true
     },
     async deleteGroupConfirm () {
-      // await this.$http('delete', '/api/groups/'+deletedGroup.id);
-      console.log('deleteGroupConfirm')
+      await this.$http('delete', '/api/groups/' + this.deletedGroup.id)
+      this.groups.splice(this.groups.indexOf(this.deletedGroup), 1)
+    },
+    onSubmit (group) {
+      this.addPopup = false
+      this.groups.push(group)
     }
   },
   async mounted () {

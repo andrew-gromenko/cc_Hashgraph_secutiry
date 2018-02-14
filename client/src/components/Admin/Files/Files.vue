@@ -1,7 +1,7 @@
 <template lang="pug">
 v-flex
   popup(title="Add file", :show="addPopup", @closed="addPopup = false")
-    add-file
+    add-file(@onSubmit="onSubmit")
   confirm-dialog(:title="'Do you want to delete the '+(deletedFile?deletedFile.name:'')+' file?'",
                 :show="confirmDeleteDialog",
                 @canceled="confirmDeleteDialog = false",
@@ -17,9 +17,9 @@ v-flex
 
 <script>
 import AddFile from './AddFile.vue'
-import Popup from '../../core/components/Popup'
-import AddButton from '../../core/components/AddButton.vue'
-import ConfirmDialog from '../../core/components/ConfirmDialog'
+import Popup from '@/core/components/Popup'
+import AddButton from '@/core/components/AddButton.vue'
+import ConfirmDialog from '@/core/components/ConfirmDialog'
 
 export default {
   data () {
@@ -36,9 +36,12 @@ export default {
       this.confirmDeleteDialog = true
     },
     async deleteFileConfirm () {
-      // await this.$http('delete', '/api/files/'+deletedFile.id);
-      console.log('deleteFileConfirm')
-      this.confirmDeleteDialog = false
+      await this.$http('delete', '/api/files/' + this.deletedFile.id)
+      this.files.splice(this.files.indexOf(this.deletedFile), 1)
+    },
+    onSubmit (file) {
+      this.addPopup = false
+      this.files.push(file)
     }
   },
   async mounted () {

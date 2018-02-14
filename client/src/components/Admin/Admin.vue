@@ -17,9 +17,9 @@ v-layout.layout(fill-height)
 </template>
 
 <script>
-import Groups from './Groups.vue'
-import Files from './Files.vue'
-import Users from './Users.vue'
+import Groups from './Groups/Groups.vue'
+import Files from './Files/Files.vue'
+import Users from './Users/Users.vue'
 
 export default {
   data () {

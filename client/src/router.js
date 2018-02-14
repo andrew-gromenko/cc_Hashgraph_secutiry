@@ -33,19 +33,23 @@ var router = new Router({
   ]
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   var auth = router.app.$auth
   if (!auth.isAuth()) {
-    auth.auth()
+    await auth.auth()
   }
 
-  if (to.meta.requiresAdmin && !auth.isAdmin()) {
+  if (to.meta.requiresAdmin && !auth.isAdmin() && auth.isAuth()) {
     next({
       name: auth.isAuth() ? 'index' : 'login'
     })
   } else if (to.meta.requiresAuth && !auth.isAuth()) {
     next({
       name: 'login'
+    })
+  } else if (to.name === 'login' && auth.isAuth()) {
+    next({
+      name: 'index'
     })
   } else {
     next()

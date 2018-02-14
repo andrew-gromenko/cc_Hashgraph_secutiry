@@ -1,10 +1,9 @@
 <template lang="pug">
 v-dialog(v-model="dialog" max-width="600px")
-    v-card
-        v-card-title
-            span.headline {{title}}
-        v-card-text
-            slot
+  v-card
+    v-card-title
+      span.headline {{title}}
+    slot
 </template>
 
 <script>

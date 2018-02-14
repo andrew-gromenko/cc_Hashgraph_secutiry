@@ -3,7 +3,7 @@ v-list(subheader)
   v-subheader {{title}}
   v-list-tile(v-for="item in items", :key="item.id")
     v-list-tile-content
-      v-list-tile-title(v-text="item.name")
+      v-list-tile-title(v-text="item[itemText]")
     v-list-tile-action
       v-btn(icon, @click='removeItem(item.id)')
         v-icon delete
@@ -14,7 +14,7 @@ v-list(subheader)
       v-model="select"
       autocomplete
       :loading="loading"
-      item-text="name"
+      :item-text="itemText"
       item-value="id"
       required
       :search-input.sync="search"
@@ -23,7 +23,7 @@ v-list(subheader)
 
 <script>
 export default {
-  props: ['groupId', 'ids', 'target', 'title', 'label'],
+  props: ['groupId', 'ids', 'target', 'itemText', 'title', 'label'],
   data () {
     return {
       select: null,

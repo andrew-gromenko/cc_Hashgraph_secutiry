@@ -54,7 +54,7 @@ server.get('/files/search/:subname', (req, res) => {
 server.get('/users/search/:subname', (req, res) => {
   const { subname } = req.params
   const users = router.db.get('users').value().filter(u => {
-    return submatch(u.name, subname)
+    return submatch(u.username, subname)
   })
 
   res.jsonp(users)

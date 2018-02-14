@@ -1,7 +1,7 @@
 var user = null
 
 export default {
-  install (Vue, options) {
+  install (Vue, { $http }) {
     Vue.prototype.$auth = {
       login () {
 
@@ -9,12 +9,9 @@ export default {
       logout () {
 
       },
-      auth () {
-        user = {
-          name: 'Matt',
-          id: 2,
-          role: 'admin'
-        }
+      async auth () {
+        const userId = 1// localStorage.
+        user = await $http('get', '/api/users/' + userId)
       },
       isAuth () {
         return user !== null

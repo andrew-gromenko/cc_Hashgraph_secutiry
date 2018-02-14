@@ -1,6 +1,6 @@
 <template lang="pug">
 v-app
-  navigation-drawer(:show="drawer", @closed="drawer = false")
+  navigation-drawer(v-if="$auth.isAuth()", :show="drawer", @closed="drawer = false")
   v-toolbar(dark='', color='primary', tabs)
     v-toolbar-side-icon(@click.stop="drawer = !drawer")
     v-toolbar-title.white--text

@@ -2,62 +2,68 @@
   "users": [
     {
       "id": 1,
-      "name": "John",
+      "username": "John",
       "role": "admin"
     },
     {
       "id": 2,
-      "name": "Matt"
+      "username": "Matt"
     },
     {
       "id": 3,
-      "name": "Bill"
+      "username": "Bill"
     }
   ],
   "files": [
     {
       "id": 1,
-      "userId": 1,
-      "name": "filename",
-      "allowed": false
+      "name": "filename"
     },
     {
       "id": 2,
-      "userId": 1,
-      "name": "filename1",
-      "allowed": true
+      "name": "filename1"
     },
     {
       "id": 3,
-      "userId": 2,
-      "name": "filename2",
-      "allowed": true
+      "name": "filename2"
     },
     {
       "id": 4,
-      "userId": 2,
-      "name": "filename3",
-      "allowed": true
-    },
-    {
-      "id": 5,
-      "userId": 3,
-      "name": "filename4",
-      "allowed": false
+      "name": "filename3"
     }
   ],
   "groups": [
     {
       "id": 1,
       "name": "Group1",
-      "userIds": [1,2],
-      "fileIds": [1,2]
+      "userIds": [
+        1,
+        2
+      ],
+      "fileIds": [
+        1,
+        2
+      ]
     },
     {
       "id": 2,
       "name": "Group2",
-      "userIds": [2,3],
-      "fileIds": [3,4,5]
+      "userIds": [
+        2,
+        3
+      ],
+      "fileIds": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "sdfsdfsdf",
+      "tresorId": "some string",
+      "userIds": [],
+      "fileIds": [],
+      "id": 3
     }
   ]
 }

@@ -1,0 +1,49 @@
+<template lang="pug">
+div
+  v-card-text
+    v-form(v-model="valid")
+      v-text-field(
+        prepend-icon='supervisor_account'
+        required
+        label='Name'
+        v-model="name"
+        :rules="nameRules"
+      )
+  v-card-actions
+    v-spacer
+    v-btn(color="primary", @click="submit", :disabled="!valid") Submit
+</template>
+
+<script>
+import { GroupRules } from '@/core/validation/rules'
+
+export default {
+  props: ['onSubmit'],
+  data () {
+    return {
+      name: '',
+      tresorId: 'some string',
+      valid: true,
+      nameRules: GroupRules.name
+    }
+  },
+  methods: {
+    async submit () {
+      const group = await this.$http('post', '/api/groups', {
+        name: this.name,
+        tresorId: this.tresorId,
+        userIds: [],
+        fileIds: []
+      })
+
+      this.$emit('onSubmit', group)
+      this.valid = true
+      this.name = ''
+    }
+  }
+}
+</script>
+
+<style lang="sass">
+
+</style>

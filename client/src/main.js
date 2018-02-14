@@ -12,7 +12,7 @@ import Auth from './services/auth'
 Vue.use(Vuetify)
 Vue.use(EventBus)
 Vue.use(Http)
-Vue.use(Auth)
+Vue.use(Auth, {$http: Vue.prototype.$http})
 
 Vue.config.productionTip = false
 
