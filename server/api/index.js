@@ -34,7 +34,7 @@ router.post('/files', async (req, res) => {
 
   try {
     const newFile = await File.create({ name, encryptedString })
-    res.json(newFile.id)
+    res.json(newFile)
   } catch (err) {
     res.status(400).end(err.message)
   }
@@ -67,24 +67,64 @@ router.get('/files', async (req, res) => {
   const files = await File.find(find)
   res.json(files)
 })
+
+router.get('/files/:id', async (req, res) => {
+  const { id } = req.params
+  // check if this is admin
+  const files = await File.findById(id)
+  res.json(files)
+})
+
 router.get('/groups', async (req, res) => {
   const { userId } = req.query
   let find = {}
   if (userId) {
     find['userId'] = userId
   }
-  const groups = await Group.find(find).populate('fileIds')
+  const groups = await Group.find(find)
 
   res.json(groups)
 })
+
 router.get('/users', async (req, res) => {
   const { substr } = req.query
   let find = {}
   if (substr) {
-    find = { name: { $regex: req.query.substr, $options: 'i' } }
+    find = { username: { $regex: req.query.substr, $options: 'i' } }
   }
   const users = await User.find(find)
   res.json(users)
+})
+
+router.get('/users/:id', async (req, res) => {
+  const { id } = req.params
+
+  const users = await User.findById(id)
+  res.json(users)
+})
+
+router.delete('/users/:id', async (req, res) => {
+  const { id } = req.params
+
+  await User.findByIdAndRemove(id)
+  Group.findByIdAndUpdate({ userIds: id }, { $pull: { userIds: id } })
+  res.status(200).end()
+})
+
+router.delete('/files/:id', async (req, res) => {
+  const { id } = req.params
+
+  await File.findByIdAndRemove(id)
+  Group.findByIdAndUpdate({ userIds: id }, { $pull: { fileIds: id } })
+
+  res.status(200).json({})
+})
+
+router.delete('/groups/:id', async (req, res) => {
+  const { id } = req.params
+
+  await Group.findByIdAndRemove(id)
+  res.status(200).end()
 })
 // GET
 
@@ -102,51 +142,64 @@ router.get('/files', async (req, res) => {
 router.patch('/groups/:groupId', async (req, res) => {
   const { fileId, userId } = req.body
   const { groupId } = req.params
-  const fileC = await File.count({ _id: fileId })
-  const userC = await File.count({ _id: userId })
+  const file = await File.findOne({ _id: fileId })
+  const user = await User.findOne({ _id: userId })
 
   if (typeof fileId !== 'string' && typeof groupId !== 'string' && !fileId && groupId) {
     res.status(400).end('Invalid fileId or groupId')
   }
 
-  if (fileC === 0 || userC === 0) {
-    res.status(400).end('Invalid fileId or groupId')
-  }
-
   const update = {}
+  let resp
   if (fileId && typeof fileId === 'string') {
-    update['fileId'] = fileId
+    if (!file) {
+      return res.status(400).end('Invalid fileId')
+    }
+    update['fileIds'] = fileId
+    resp = file
   }
   if (userId && typeof userId === 'string') {
-    update['userId'] = userId
+    if (!user) {
+      return res.status(400).end('Invalid userId')
+    }
+    update['userIds'] = userId
+    resp = user
   }
 
-  Group.findByIdAndUpdate(groupId, { $addToSet: update })
+  await Group.findByIdAndUpdate(groupId, { $addToSet: update }, { new: true })
+  res.json(resp)
 })
 
 // // REMOVE GROUP or remove fileId or userId from a group
 router.delete('/groups/:groupId', async (req, res) => {
   const { fileId, userId } = req.body
-  const fileC = await File.count({ _id: fileId })
-  const userC = await File.count({ _id: userId })
-  if (fileC === 0 || userC === 0) {
-    res.status(400).end('fileId or userId is invalid')
-  }
-
-  const { groupId } = req.body
-  const update = {}
-  if (fileId && typeof fileId === 'string') {
-    update['fileId'] = [fileId]
-  }
-  if (userId && typeof userId === 'string') {
-    update['userId'] = [userId]
-  }
+  const { groupId } = req.params
+  const file = await File.findOne({ _id: fileId })
+  const user = await User.findOne({ _id: userId })
 
   if (typeof fileId !== 'string' && typeof groupId !== 'string' && !fileId && groupId) {
     res.status(400).end('Invalid fileId or groupId')
   }
 
+  const update = {}
+  let resp
+  if (fileId && typeof fileId === 'string') {
+    if (!file) {
+      return res.status(400).end('Invalid fileId')
+    }
+    update['fileIds'] = fileId
+    resp = file
+  }
+  if (userId && typeof userId === 'string') {
+    if (!user) {
+      return res.status(400).end('Invalid userId')
+    }
+    update['userIds'] = userId
+    resp = user
+  }
+
   Group.findByIdAndUpdate(groupId, { $pull: update })
+  res.json(resp)
 })
 
 // router.get('/file/:userId', async (req, res) => {

@@ -36,6 +36,7 @@ export default {
   },
   async mounted () {
     this.items = await Promise.all(this.ids.map(id => {
+      console.log(id)
       return this.$http('get', 'api/' + this.target + 's/' + id)
     }))
   },
@@ -52,6 +53,7 @@ export default {
       console.log(id)
       const item = await this.$http('patch', `/api/groups/${this.groupId}`, { [this.target + 'Id']: id })
 
+      console.log(item)
       if (this.items.find(i => i.id === item.id)) {
         this.$eventBus.$emit('notify', this.target + ' already exist')
       } else {
@@ -59,7 +61,7 @@ export default {
       }
     },
     async removeItem (id) {
-      await this.$http('patch', '/api/group/' + this.groupId + '/remove/' + this.target + '/' + id)
+      await this.$http('delete', `/api/groups/${this.groupId}`, { [this.target + 'Id']: id })
       const item = this.items.find(i => i.id === id)
       this.items.splice(this.items.indexOf(item), 1)
     },
