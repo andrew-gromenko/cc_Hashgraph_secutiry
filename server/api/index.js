@@ -114,7 +114,8 @@ router.delete('/users/:id', async (req, res) => {
   const { id } = req.params
 
   await User.findByIdAndRemove(id)
-  Group.findByIdAndUpdate({ userIds: id }, { $pull: { userIds: id } })
+  await Group.find({ userIds: id }).update({ $pull: { userIds: id } })
+
   res.status(200).json({})
 })
 
@@ -122,7 +123,7 @@ router.delete('/files/:id', async (req, res) => {
   const { id } = req.params
 
   await File.findByIdAndRemove(id)
-  Group.findByIdAndUpdate({ userIds: id }, { $pull: { fileIds: id } })
+  await Group.find({ fileIds: id }).update({ $pull: { fileIds: id } })
 
   res.status(200).json({})
 })
