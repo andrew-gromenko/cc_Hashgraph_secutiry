@@ -1,6 +1,7 @@
 async function http (method, url, data) {
+  var res = null
   try {
-    var res = await fetch(url, {
+    res = await fetch(url, {
       headers: {
         'Content-Type': 'application/json'
       },
@@ -11,7 +12,7 @@ async function http (method, url, data) {
     return await res.json()
   } catch (e) {
     console.error(e)
-    this.$eventBus.$emit('notify', e.message)
+    this.$eventBus.$emit('notify', res.status + ': ' + res.statusText)
     return null
   }
 }
