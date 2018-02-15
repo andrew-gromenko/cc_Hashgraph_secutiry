@@ -204,8 +204,8 @@ router.delete('/groups/:groupId', async (req, res) => {
     update['userIds'] = userId
     resp = user
   }
-  
-  Group.findByIdAndUpdate(groupId, { $pull: update })
+
+  await Group.findByIdAndUpdate(groupId, { $pull: update })
   res.json(resp)
 })
 
