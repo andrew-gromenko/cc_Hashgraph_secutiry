@@ -6,13 +6,16 @@ v-layout
                 h3.headline.mb-0 Login
             v-form.mx-3(v-model='valid', lazy-validation)
                 v-text-field(label='Name', v-model='name', :rules='nameRules', required)
-                v-text-field(label='Password', v-model='password', type="password", :rules='passwordRules', required)
+                //v-text-field(label='Password', v-model='password', type="password", :rules='passwordRules', required)
+                .password-frame(ref="frame")
                 v-card-actions.text-md-right
                     v-btn(flat, @click='submit', :disabled='!valid')
                         | Submit
 </template>
 
 <script>
+import * as zkitSdk from 'zerokit-web-sdk'
+
 export default {
   data () {
     return {
@@ -27,16 +30,32 @@ export default {
       passwordRules: [
         v => !!v || 'Password is required',
         v => v.length >= 8 || 'Password must be more than 8 characters'
-      ]
+      ],
+      zkitLogin: null
     }
   },
   methods: {
-    submit () {
-      console.log(this.name, this.password)
+    async submit () {
+      const user = await this.$http('get', '/api/zkit/user?username=' + this.name)
+      var userId = null
+
+      try {
+        userId = await this.zkitLogin.login(user.zkitId)
+      } catch (e) {
+        this.$eventBus.$emit('notify', e.description)
+      }
+
+      if (userId != null) {
+        this.$router.push('/')
+      }
     }
+  },
+  mounted () {
+    this.zkitLogin = zkitSdk.getLoginIframe(this.$refs.frame)
   }
 }
 </script>
 
 <style lang="sass">
+.password-frame
 </style>

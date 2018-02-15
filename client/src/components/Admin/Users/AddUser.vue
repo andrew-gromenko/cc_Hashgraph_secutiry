@@ -9,7 +9,8 @@ div
         v-model="name"
         :rules="nameRules"
       )
-      v-text-field(
+      .password-frame(ref="frame")
+      //v-text-field(
         prepend-icon='security'
         required
         label='Password'
@@ -18,7 +19,7 @@ div
         :type="hidePassword ? 'password' : 'text'"
         :append-icon="hidePassword ? 'visibility_off' : 'visibility'"
         :append-icon-cb="() => (hidePassword = !hidePassword)"
-      )
+      //)
   v-card-actions
     v-spacer
     v-btn(color="primary", @click="submit", :disabled="!valid") Submit
@@ -26,6 +27,7 @@ div
 
 <script>
 import { UserRules } from '@/core/validation/rules'
+import * as zkitSdk from 'zerokit-web-sdk'
 
 export default {
   props: ['onSubmit'],
@@ -36,30 +38,38 @@ export default {
       hidePassword: true,
       valid: true,
       nameRules: UserRules.name,
-      passwordRules: UserRules.password
+      passwordRules: UserRules.password,
+      zkitReg: null
     }
   },
   methods: {
     async submit () {
-      // var zkitUser = {
-      //   name: this.name,
-      //   password: this.password
-      // }
+      const {userId, regSessionId} = await this.$http('post',
+        'api/zkit/init-user-registration', {
+          username: this.name
+        }
+      )
+      if (!userId || !regSessionId) return
 
-      const id = await this.$http('post', '/api/users', {
-        username: this.name
-      })
-      const user = await this.$http('get', `/api/users/${id}`)
+      const regResponse = await this.zkitReg.register(userId, regSessionId)
+      const newUser = await this.$http('post', 'api/zkit/finish-user-registration',
+        {
+          userId,
+          validationVerifier: regResponse.RegValidationVerifier
+        }
+      )
 
-      this.$emit('onSubmit', user)
+      this.$emit('onSubmit', newUser)
       this.valid = true
       this.name = ''
-      this.password = ''
     }
+  },
+  mounted () {
+    this.zkitReg = zkitSdk.getRegistrationIframe(this.$refs.frame)
   }
 }
 </script>
 
 <style lang="sass">
-
+.password-frame
 </style>

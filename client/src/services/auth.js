@@ -1,3 +1,5 @@
+import * as zkitSdk from 'zerokit-web-sdk'
+
 var user = null
 
 export default {
@@ -10,11 +12,23 @@ export default {
 
       },
       async auth () {
-        const userId = '5a82d3ea8854aa7bae1a4f17' // localStorage.
-        user = {
-          id: userId,
-          username: 'asdf',
-          role: 'admin'
+        const whoami = await zkitSdk.whoAmI()
+        if (whoami == null) return
+
+        user = await $http('get', '/api/zkit/user?zkitId=' + whoami)
+        if (!user || !user.zkitId) {
+          user = null
+
+          // Temporary hack
+          const {count} = await $http('get', '/api/user/count')
+
+          if (count === 0) {
+            user = {
+              id: '000',
+              username: 'Fake admin',
+              role: 'admin'
+            }
+          }
         }
       },
       isAuth () {

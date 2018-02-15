@@ -3,6 +3,8 @@ const File = require('../models/File')
 const User = require('../models/User')
 const router = require('express').Router()
 
+router.use('/zkit', require('./zkit'))
+
 // CREATE
 router.post('/groups', async (req, res) => {
   const { name, tresorId } = req.body
@@ -127,6 +129,12 @@ router.delete('/files/:id', async (req, res) => {
 
   res.status(200).json({})
 })
+
+router.get('/user/count', async (req, res) => {
+  const count = await User.count({})
+
+  res.json({count})
+});
 
 // GET
 

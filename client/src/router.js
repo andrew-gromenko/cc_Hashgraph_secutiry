@@ -39,7 +39,7 @@ router.beforeEach(async (to, from, next) => {
     await auth.auth()
   }
 
-  if (to.meta.requiresAdmin && !auth.isAdmin() && auth.isAuth()) {
+  if (to.meta.requiresAdmin && !auth.isAdmin()) {
     next({
       name: auth.isAuth() ? 'index' : 'login'
     })
@@ -47,10 +47,10 @@ router.beforeEach(async (to, from, next) => {
     next({
       name: 'login'
     })
-  } else if (to.name === 'login' && auth.isAuth()) {
-    next({
-      name: 'index'
-    })
+  // } else if (to.name === 'login' && auth.isAuth()) {
+  //   next({
+  //     name: 'index'
+  //   })
   } else {
     next()
   }
