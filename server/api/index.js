@@ -115,7 +115,7 @@ router.delete('/users/:id', async (req, res) => {
 
   await User.findByIdAndRemove(id)
   Group.findByIdAndUpdate({ userIds: id }, { $pull: { userIds: id } })
-  res.status(200).end()
+  res.status(200).json({})
 })
 
 router.delete('/files/:id', async (req, res) => {
@@ -127,12 +127,6 @@ router.delete('/files/:id', async (req, res) => {
   res.status(200).json({})
 })
 
-router.delete('/groups/:id', async (req, res) => {
-  const { id } = req.params
-
-  await Group.findByIdAndRemove(id)
-  res.status(200).end()
-})
 // GET
 
 // fuzzy search
@@ -181,6 +175,12 @@ router.patch('/groups/:groupId', async (req, res) => {
 router.delete('/groups/:groupId', async (req, res) => {
   const { fileId, userId } = req.body
   const { groupId } = req.params
+  
+  if (!fileId && !userId) { // Hot fix for group removing. Need to separate from removing fileId or userId
+    await Group.findByIdAndRemove(groupId)
+    return res.status(200).json({})
+  }
+
   const file = await File.findOne({ _id: fileId })
   const user = await User.findOne({ _id: userId })
 
@@ -204,7 +204,7 @@ router.delete('/groups/:groupId', async (req, res) => {
     update['userIds'] = userId
     resp = user
   }
-
+  
   Group.findByIdAndUpdate(groupId, { $pull: update })
   res.json(resp)
 })

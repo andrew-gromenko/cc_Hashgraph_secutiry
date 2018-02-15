@@ -11,6 +11,7 @@ v-list(subheader)
     v-select(
       :items="searchItems"
       :label="label"
+      clearable
       v-model="select"
       autocomplete
       :loading="loading"
@@ -29,31 +30,32 @@ export default {
       select: null,
       loading: false,
       search: '',
-      selectItem: null,
       searchItems: [],
-      items: []
+      selectModel: ''
     }
   },
-  async mounted () {
-    this.items = await Promise.all(this.ids.map(id => {
-      console.log(id)
-      return this.$http('get', 'api/' + this.target + 's/' + id)
-    }))
+  asyncComputed: {
+    async items () {
+      let items = await Promise.all(this.ids.map(id => {
+        return this.$http('get', 'api/' + this.target + 's/' + id)
+      }))
+      return items.filter(item => item)
+    }
   },
   watch: {
     search (val) {
       val && this.querySelections(val)
     },
     select (id) {
+      if (id == null) return
+
       this.addItem(id)
     }
   },
   methods: {
     async addItem (id) {
-      console.log(id)
       const item = await this.$http('patch', `/api/groups/${this.groupId}`, { [this.target + 'Id']: id })
 
-      console.log(item)
       if (this.items.find(i => i.id === item.id)) {
         this.$eventBus.$emit('notify', this.target + ' already exist')
       } else {
@@ -68,7 +70,6 @@ export default {
     async querySelections (query) {
       this.loading = true
       this.searchItems = await this.$http('get', `/api/${this.target}s?substr=${query}`)
-      console.log(this.searchItems)
       this.loading = false
     }
   }
