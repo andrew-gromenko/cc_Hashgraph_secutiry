@@ -46,9 +46,10 @@ export default {
       //   password: this.password
       // }
 
-      const user = await this.$http('post', '/api/users', {
+      const id = await this.$http('post', '/api/users', {
         username: this.name
       })
+      const user = await this.$http('get', `/api/users/${id}`)
 
       this.$emit('onSubmit', user)
       this.valid = true

@@ -54,10 +54,11 @@ export default {
       })
     },
     async submit () {
-      const file = await this.$http('post', '/api/files', {
+      const id = await this.$http('post', '/api/files', {
         name: this.name,
         encryptedString: await this.encryptFile(this.file)
       })
+      const file = await this.$http('get', `/api/files/${id}`)
 
       this.$emit('onSubmit', file)
       this.valid = true

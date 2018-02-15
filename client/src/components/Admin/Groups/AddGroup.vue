@@ -29,12 +29,13 @@ export default {
   },
   methods: {
     async submit () {
-      const group = await this.$http('post', '/api/groups', {
+      const id = await this.$http('post', '/api/groups', {
         name: this.name,
         tresorId: this.tresorId,
         userIds: [],
         fileIds: []
       })
+      const group = await this.$http('get', `/api/groups/${id}`)
 
       this.$emit('onSubmit', group)
       this.valid = true

@@ -24,7 +24,7 @@ router.post('/groups', async (req, res) => {
 
 router.post('/files', async (req, res) => {
   const { name, encryptedString } = req.body
-
+  
   if (!name || typeof name !== 'string') {
     return res.status(400).end('Invalid filename')
   }
@@ -34,7 +34,7 @@ router.post('/files', async (req, res) => {
 
   try {
     const newFile = await File.create({ name, encryptedString })
-    res.json(newFile)
+    res.json(newFile.id)
   } catch (err) {
     res.status(400).end(err.message)
   }
@@ -73,6 +73,13 @@ router.get('/files/:id', async (req, res) => {
   // check if this is admin
   const files = await File.findById(id)
   res.json(files)
+})
+
+router.get('/groups/:id', async (req, res) => {
+  const { id } = req.params
+
+  const group = await Group.findById(id)
+  res.json(group)
 })
 
 router.get('/groups', async (req, res) => {
