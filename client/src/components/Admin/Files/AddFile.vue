@@ -9,6 +9,19 @@ div
         v-model="name"
         :rules="nameRules"
       )
+      v-select(
+        prepend-icon='attachment'
+        :items="searchItems"
+        label="Group"
+        clearable
+        v-model="select"
+        autocomplete
+        :loading="loading"
+        item-text="name"
+        item-value="id"
+        required
+        :search-input.sync="search"
+      )
       file-input(
         v-model="filename"
         @files="onFiles"
@@ -23,6 +36,7 @@ div
 <script>
 import { FileRules } from '@/core/validation/rules'
 import FileInput from '@/core/components/FileInput'
+import * as zkitSDK from 'zerokit-web-sdk'
 
 export default {
   props: ['onSubmit'],
@@ -32,8 +46,24 @@ export default {
       filename: '',
       file: null,
       valid: true,
+      tresorId: null,
       nameRules: FileRules.name,
-      fileRules: FileRules.file
+      fileRules: FileRules.file,
+      select: null,
+      loading: false,
+      search: '',
+      searchItems: []
+    }
+  },
+  watch: {
+    search (val) {
+      val && this.querySelections(val)
+    },
+    select (id) {
+      if (id == null) return
+      const group = this.searchItems.find(g => g.id === id)
+
+      this.tresorId = group.tresorId
     }
   },
   methods: {
@@ -44,9 +74,10 @@ export default {
       return new Promise((resolve, reject) => {
         var reader = new FileReader()
 
-        reader.onload = () => {
-          // zkit_sdk.encrypt(tresorId, text)
-          resolve(reader.result)
+        reader.onload = async () => {
+          const data = await zkitSDK.encrypt(this.tresorId, reader.result)
+
+          resolve(data)
         }
         reader.onerror = reject
 
@@ -54,6 +85,11 @@ export default {
       })
     },
     async submit () {
+      if (!this.tresorId) {
+        this.$eventBus.$emit('notify', 'Choose a group')
+        return
+      }
+
       const id = await this.$http('post', '/api/files', {
         name: this.name,
         encryptedString: await this.encryptFile(this.file)
@@ -64,6 +100,11 @@ export default {
       this.valid = true
       this.name = ''
       this.filename = ''
+    },
+    async querySelections (query) {
+      this.loading = true
+      this.searchItems = await this.$http('get', `/api/groups?substr=${query}`)
+      this.loading = false
     }
   },
   components: {

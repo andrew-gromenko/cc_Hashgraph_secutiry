@@ -23,8 +23,10 @@ v-list(subheader)
 </template>
 
 <script>
+import * as zkitSDK from 'zerokit-web-sdk'
+
 export default {
-  props: ['groupId', 'ids', 'target', 'itemText', 'title', 'label'],
+  props: ['group', 'ids', 'target', 'itemText', 'title', 'label'],
   data () {
     return {
       select: null,
@@ -54,7 +56,17 @@ export default {
   },
   methods: {
     async addItem (id) {
-      const item = await this.$http('patch', `/api/groups/${this.groupId}`, { [this.target + 'Id']: id })
+      const user = await this.$http('get', '/api/users/' + id)
+
+      var operationId = null
+      try {
+        operationId = await zkitSDK.shareTresor(this.group.tresorId, user.zkitId)
+      } catch (e) {
+        this.$eventBus.$emit('notify', e.description)
+        return
+      }
+
+      const item = await this.$http('patch', `/api/groups/${this.group.id}`, { [this.target + 'Id']: id, operationId })
 
       if (this.items.find(i => i.id === item.id)) {
         this.$eventBus.$emit('notify', this.target + ' already exist')
@@ -63,7 +75,7 @@ export default {
       }
     },
     async removeItem (id) {
-      await this.$http('delete', `/api/groups/${this.groupId}`, { [this.target + 'Id']: id })
+      await this.$http('delete', `/api/groups/${this.group.id}`, { [this.target + 'Id']: id })
       const item = this.items.find(i => i.id === id)
       this.items.splice(this.items.indexOf(item), 1)
     },

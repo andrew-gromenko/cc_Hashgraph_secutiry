@@ -16,22 +16,24 @@ div
 
 <script>
 import { GroupRules } from '@/core/validation/rules'
+import * as zkitSDK from 'zerokit-web-sdk'
 
 export default {
   props: ['onSubmit'],
   data () {
     return {
       name: '',
-      tresorId: 'some string',
       valid: true,
       nameRules: GroupRules.name
     }
   },
   methods: {
     async submit () {
+      const tresorId = await zkitSDK.createTresor()
+
       const id = await this.$http('post', '/api/groups', {
         name: this.name,
-        tresorId: this.tresorId,
+        tresorId,
         userIds: [],
         fileIds: []
       })

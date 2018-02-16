@@ -2,6 +2,7 @@ const Group = require('../models/Group')
 const File = require('../models/File')
 const User = require('../models/User')
 const router = require('express').Router()
+const adminApi = require('./zkit/adminApi')
 
 router.use('/zkit', require('./zkit'))
 
@@ -18,6 +19,7 @@ router.post('/groups', async (req, res) => {
 
   try {
     const newGroup = await Group.create({ name, tresorId })
+    adminApi.approveTresorCreation(tresorId)
     res.json(newGroup.id)
   } catch (err) {
     res.status(400).end(err.message)
@@ -150,7 +152,7 @@ router.get('/files', async (req, res) => {
 
 // // UPDATE GROUP - add fileId or userId to a group
 router.patch('/groups/:groupId', async (req, res) => {
-  const { fileId, userId } = req.body
+  const { fileId, userId, operationId } = req.body
   const { groupId } = req.params
   const file = await File.findOne({ _id: fileId })
   const user = await User.findOne({ _id: userId })
@@ -172,6 +174,7 @@ router.patch('/groups/:groupId', async (req, res) => {
     if (!user) {
       return res.status(400).end('Invalid userId')
     }
+    await adminApi.approveShare(operationId)
     update['userIds'] = userId
     resp = user
   }
