@@ -66,10 +66,12 @@ export default {
   },
   mounted () {
     this.zkitReg = zkitSdk.getRegistrationIframe(this.$refs.frame)
+    this.zkitReg.addClass('pw1', 'my-inp1')
   }
 }
 </script>
 
 <style lang="sass">
-.password-frame
+@import '../../../assets/password-frame'
+
 </style>

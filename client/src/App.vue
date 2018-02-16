@@ -1,10 +1,13 @@
 <template lang="pug">
 v-app
-  navigation-drawer(v-if="$auth.isAuth()", :show="drawer", @closed="drawer = false")
+  navigation-drawer(v-if="$auth.isAuth", :show="drawer", @closed="drawer = false")
   v-toolbar(dark='', color='primary', tabs)
-    v-toolbar-side-icon(@click.stop="drawer = !drawer")
+    v-toolbar-side-icon(@click.stop="drawer = !drawer", :disabled="!$auth.isAuth")
     v-toolbar-title.white--text
       | {{title}}
+    v-spacer
+    v-btn(v-if="$auth.isAuth", icon, @click="logout()")
+      v-icon exit_to_app
   v-content.white
     router-view
     notification
@@ -35,8 +38,9 @@ export default {
     }
   },
   methods: {
-    isShown (item) {
-      return item.role !== 'admin' || (this.$auth.isAdmin() && item.role === 'admin')
+    async logout () {
+      await this.$auth.logout()
+      this.$router.push('/login')
     }
   },
   components: {

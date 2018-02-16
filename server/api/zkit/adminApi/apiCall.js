@@ -10,13 +10,14 @@ const config = require("../../../../config.json").zeroKit;
  * @return {Promise<*>} Returns a promise to whatever the server returns.
  */
 //
-module.exports = function(urlPart, contentObj) {
+module.exports = function (urlPart, contentObj, method) {
+  method = method || (contentObj ? "POST" : "GET")
   urlPart = config.apiPath + urlPart;
   const contentBuffer = contentObj ? contentify(contentObj) : null;
-  const headers = adminCallAuth(urlPart, contentBuffer);
-
+  const headers = adminCallAuth(urlPart, contentBuffer, method);
+  
   return rp({
-    method: contentObj ? "POST" : "GET",
+    method,
     uri: config.apiBase + urlPart,
     headers: headers,
     body: contentBuffer
@@ -42,7 +43,7 @@ function getHeaderStringToHash(verb, path, headers, hmacHeaders) {
  * @param contentBuffer The bytes that will be sent or undefined (or null) for GET
  * @return {*} The headers to pass
  */
-function adminCallAuth(path, contentBuffer) {
+function adminCallAuth(path, contentBuffer, method) {
   // Format ISO8601 with no milliseconds
   const date = new Date().toISOString().substr(0, 19) + "Z";
   const headers = {
@@ -57,7 +58,7 @@ function adminCallAuth(path, contentBuffer) {
   hmacHeaders.push("HMACHeaders");
   headers["HMACHeaders"] = hmacHeaders.join(",");
 
-  const headerStringToHash = getHeaderStringToHash(contentBuffer ? "POST" : "GET", path, headers, hmacHeaders);
+  const headerStringToHash = getHeaderStringToHash(method, path, headers, hmacHeaders);
   headers["Authorization"] = "AdminKey " + hmacSha256base64(headerStringToHash, config.adminKey);
   return headers;
 }

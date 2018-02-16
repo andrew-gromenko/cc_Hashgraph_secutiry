@@ -7,7 +7,7 @@ v-layout
             v-form.mx-3(v-model='valid', lazy-validation)
                 v-text-field(label='Name', v-model='name', :rules='nameRules', required)
                 //v-text-field(label='Password', v-model='password', type="password", :rules='passwordRules', required)
-                .password-frame(ref="frame")
+                .password-frame.login(ref="frame")
                 v-card-actions.text-md-right
                     v-btn(flat, @click='submit', :disabled='!valid')
                         | Submit
@@ -36,14 +36,7 @@ export default {
   },
   methods: {
     async submit () {
-      const user = await this.$http('get', '/api/zkit/user?username=' + this.name)
-      var userId = null
-
-      try {
-        userId = await this.zkitLogin.login(user.zkitId)
-      } catch (e) {
-        this.$eventBus.$emit('notify', e.description)
-      }
+      const userId = await this.$auth.login(this.zkitLogin, this.name)
 
       if (userId != null) {
         this.$router.push('/')
@@ -57,5 +50,5 @@ export default {
 </script>
 
 <style lang="sass">
-.password-frame
+@import '../assets/password-frame'
 </style>

@@ -17,7 +17,7 @@ Vue.use(AsyncComputed)
 Vue.use(Vuetify)
 Vue.use(EventBus)
 Vue.use(Http, {$eventBus: Vue.prototype.$eventBus})
-Vue.use(Auth, {$http: Vue.prototype.$http})
+Vue.use(Auth, {$http: Vue.prototype.$http, $eventBus: Vue.prototype.$eventBus})
 
 Vue.config.productionTip = false
 

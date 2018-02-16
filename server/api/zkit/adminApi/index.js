@@ -26,7 +26,9 @@ module.exports = {
 
   approveInvitationLinkRevocation,
   rejectInvitationLinkRevocation,
-  getInvitationLinkRevocationDetails
+  getInvitationLinkRevocationDetails,
+
+  uploadCustomContent
 
 };
 
@@ -177,4 +179,8 @@ function approveInvitationLinkRevocation(operationId) {
  */
 function rejectInvitationLinkRevocation(operationId) {
   return adminApiCall("/tresor/reject-invitation-link-revocation", { OperationId: operationId });
+}
+
+function uploadCustomContent(filename, stream) {
+  return adminApiCall("/tenant/upload-custom-content?filename=" + filename, stream, 'PUT');
 }
