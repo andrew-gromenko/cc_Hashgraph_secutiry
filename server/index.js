@@ -20,6 +20,7 @@ mongoose.connection.once('open', () => {
   console.log('Connected to DB')
 })
 
+app.use(express.static('../client/dist'))
 app.use(morgan('combined'))
 app.use('/api', api)
 
