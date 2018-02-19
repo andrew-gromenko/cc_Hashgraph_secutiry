@@ -182,5 +182,5 @@ function rejectInvitationLinkRevocation(operationId) {
 }
 
 function uploadCustomContent(filename, stream) {
-  return adminApiCall("/tenant/upload-custom-content?filename=" + filename, stream, 'PUT');
+  return adminApiCall("/tenant/upload-custom-content?filename=" + filename, stream, 'PUT', 'text/css');
 }

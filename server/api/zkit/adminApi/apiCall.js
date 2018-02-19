@@ -12,11 +12,11 @@ const fs = require('fs');
  * @return {Promise<*>} Returns a promise to whatever the server returns.
  */
 //
-module.exports = function (urlPart, contentObj, method) {
+module.exports = function (urlPart, contentObj, method, contentType) {
   method = method || (contentObj ? "POST" : "GET")
   urlPart = config.apiPath + urlPart;
   const contentBuffer = contentObj ? (contentObj instanceof Buffer?contentObj:contentify(contentObj)) : null;
-  const headers = adminCallAuth(urlPart, contentBuffer, method);
+  const headers = adminCallAuth(urlPart, contentBuffer, method, contentType);
 
   return rp({
     method,
@@ -45,13 +45,13 @@ function getHeaderStringToHash(verb, path, headers, hmacHeaders) {
  * @param contentBuffer The bytes that will be sent or undefined (or null) for GET
  * @return {*} The headers to pass
  */
-function adminCallAuth(path, contentBuffer, method) {
+function adminCallAuth(path, contentBuffer, method, type) {
   // Format ISO8601 with no milliseconds
   const date = new Date().toISOString().substr(0, 19) + "Z";
   const headers = {
     UserId: config.adminUserId,
     TresoritDate: date,
-    "Content-Type": "text/css"
+    "Content-Type": type || "application/json"
   };
 
   if (contentBuffer) {
