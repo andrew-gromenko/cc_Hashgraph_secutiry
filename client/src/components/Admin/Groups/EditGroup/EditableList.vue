@@ -75,7 +75,17 @@ export default {
       }
     },
     async removeItem (id) {
-      await this.$http('delete', `/api/groups/${this.group.id}`, { [this.target + 'Id']: id })
+      const user = await this.$http('get', '/api/users/' + id)
+
+      var operationId = null
+      try {
+        operationId = await zkitSDK.kickFromTresor(this.group.tresorId, user.zkitId)
+      } catch (e) {
+        this.$eventBus.$emit('notify', e.description)
+        return
+      }
+
+      await this.$http('delete', `/api/groups/${this.group.id}`, { [this.target + 'Id']: id, operationId })
       const item = this.items.find(i => i.id === id)
       this.items.splice(this.items.indexOf(item), 1)
     },

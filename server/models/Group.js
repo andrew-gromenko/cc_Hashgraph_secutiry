@@ -7,8 +7,7 @@ const Group = new Schema({
     unique: true
   },
   tresorId: String,
-  userIds: [{ type: Schema.Types.ObjectId, ref: 'Uesr' }],
-  fileIds: [{ type: Schema.Types.ObjectId, ref: 'File' }]
+  userIds: [{ type: Schema.Types.ObjectId, ref: 'User' }]
 }, {
   toJSON: {
     transform (doc, ret, options) {

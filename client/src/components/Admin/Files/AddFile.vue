@@ -46,7 +46,7 @@ export default {
       filename: '',
       file: null,
       valid: true,
-      tresorId: null,
+      group: null,
       nameRules: FileRules.name,
       fileRules: FileRules.file,
       select: null,
@@ -61,9 +61,8 @@ export default {
     },
     select (id) {
       if (id == null) return
-      const group = this.searchItems.find(g => g.id === id)
 
-      this.tresorId = group.tresorId
+      this.group = this.searchItems.find(g => g.id === id)
     }
   },
   methods: {
@@ -75,7 +74,7 @@ export default {
         var reader = new FileReader()
 
         reader.onload = async () => {
-          const data = await zkitSDK.encrypt(this.tresorId, reader.result)
+          const data = await zkitSDK.encrypt(this.group.tresorId, reader.result)
 
           resolve(data)
         }
@@ -85,14 +84,15 @@ export default {
       })
     },
     async submit () {
-      if (!this.tresorId) {
+      if (!this.group) {
         this.$eventBus.$emit('notify', 'Choose a group')
         return
       }
 
       const id = await this.$http('post', '/api/files', {
         name: this.name,
-        encryptedString: await this.encryptFile(this.file)
+        encryptedString: await this.encryptFile(this.file),
+        groupId: this.group.id
       })
       const file = await this.$http('get', `/api/files/${id}`)
 

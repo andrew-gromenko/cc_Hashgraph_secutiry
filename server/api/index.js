@@ -27,7 +27,7 @@ router.post('/groups', async (req, res) => {
 })
 
 router.post('/files', async (req, res) => {
-  const { name, encryptedString } = req.body
+  const { name, encryptedString, groupId } = req.body
   
   if (!name || typeof name !== 'string') {
     return res.status(400).end('Invalid filename')
@@ -37,7 +37,7 @@ router.post('/files', async (req, res) => {
   }
 
   try {
-    const newFile = await File.create({ name, encryptedString })
+    const newFile = await File.create({ name, encryptedString, groupId })
     res.json(newFile.id)
   } catch (err) {
     res.status(400).end(err.message)
@@ -90,8 +90,9 @@ router.get('/groups', async (req, res) => {
   const { userId } = req.query
   let find = {}
   if (userId) {
-    find['userId'] = userId
+    find['userIds'] = userId
   }
+  
   const groups = await Group.find(find)
 
   res.json(groups)
@@ -185,7 +186,7 @@ router.patch('/groups/:groupId', async (req, res) => {
 
 // // REMOVE GROUP or remove fileId or userId from a group
 router.delete('/groups/:groupId', async (req, res) => {
-  const { fileId, userId } = req.body
+  const { fileId, userId, operationId } = req.body
   const { groupId } = req.params
   
   if (!fileId && !userId) { // Hot fix for group removing. Need to separate from removing fileId or userId
@@ -213,6 +214,7 @@ router.delete('/groups/:groupId', async (req, res) => {
     if (!user) {
       return res.status(400).end('Invalid userId')
     }
+    await adminApi.approveKick(operationId)
     update['userIds'] = userId
     resp = user
   }

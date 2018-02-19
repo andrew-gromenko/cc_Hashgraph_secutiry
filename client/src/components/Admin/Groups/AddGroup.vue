@@ -34,8 +34,7 @@ export default {
       const id = await this.$http('post', '/api/groups', {
         name: this.name,
         tresorId,
-        userIds: [],
-        fileIds: []
+        userIds: []
       })
       const group = await this.$http('get', `/api/groups/${id}`)
 
