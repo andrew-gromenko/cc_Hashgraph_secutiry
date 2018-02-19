@@ -4,19 +4,15 @@ const adminApi = require("./adminApi")
 const uid = require('uid2')
 const fs = require('fs');
 const path = require('path');
-var toString = require('stream-to-string')
 
 //// UPLOAD CSS FOR LOGIN/REGISTRATION IFRAME
-/*
-{
-  (async () => {
-    var r = await adminApi.uploadCustomContent('form.css', fs.createReadStream(path.join('assets', "form.css")));
-    console.log(r)
-  })()
-}*/
-//fs.readFile(path.join('assets', filename), "utf8", (err, data) => {
-//});
-  /// 
+var pathCss = path.join('assets', "form.css");
+
+adminApi.uploadCustomContent('css/login.css', fs.readFileSync(pathCss))
+  .then((res) => console.log(res))
+  .catch((err) => console.log(err))
+////
+
 
 router.post("/init-user-registration", async function(req, res, next) {
   const { username } = req.body

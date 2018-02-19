@@ -10,6 +10,8 @@ div
         :rules="nameRules"
       )
       .password-frame(ref="frame")
+        v-icon.pw1 vpn_key
+        v-icon.pw2 vpn_key
       //v-text-field(
         prepend-icon='security'
         required
@@ -66,7 +68,8 @@ export default {
   },
   mounted () {
     this.zkitReg = zkitSdk.getRegistrationIframe(this.$refs.frame)
-    this.zkitReg.addClass('pw1', 'my-inp1')
+    this.zkitReg.setPlaceholder('pw1', 'Password*')
+    this.zkitReg.setPlaceholder('pw2', 'Confirm password*')
   }
 }
 </script>

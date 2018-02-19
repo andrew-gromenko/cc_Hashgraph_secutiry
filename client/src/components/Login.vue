@@ -5,9 +5,15 @@ v-layout
             v-card-title(primary-title)
                 h3.headline.mb-0 Login
             v-form.mx-3(v-model='valid', lazy-validation)
-                v-text-field(label='Name', v-model='name', :rules='nameRules', required)
-                //v-text-field(label='Password', v-model='password', type="password", :rules='passwordRules', required)
+                v-text-field(
+                  prepend-icon='account_box',
+                  label='Name',
+                  v-model='name',
+                  :rules='nameRules',
+                  required
+                  )
                 .password-frame.login(ref="frame")
+                  v-icon.pw1 vpn_key
                 v-card-actions.text-md-right
                     v-btn(flat, @click='submit', :disabled='!valid')
                         | Submit

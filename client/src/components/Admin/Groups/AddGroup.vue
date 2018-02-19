@@ -3,7 +3,7 @@ div
   v-card-text
     v-form(v-model="valid")
       v-text-field(
-        prepend-icon='supervisor_account'
+        prepend-icon='group'
         required
         label='Name'
         v-model="name"

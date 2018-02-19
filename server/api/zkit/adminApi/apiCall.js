@@ -1,6 +1,8 @@
 const rp = require("request-promise-native");
 const crypto = require("crypto");
 const config = require("../../../../config.json").zeroKit;
+const Stream = require('stream');
+const fs = require('fs');
 
 /**
  * Convenience function to call admin endpoints on the tenant server.
@@ -13,9 +15,9 @@ const config = require("../../../../config.json").zeroKit;
 module.exports = function (urlPart, contentObj, method) {
   method = method || (contentObj ? "POST" : "GET")
   urlPart = config.apiPath + urlPart;
-  const contentBuffer = contentObj ? contentify(contentObj) : null;
+  const contentBuffer = contentObj ? (contentObj instanceof Buffer?contentObj:contentify(contentObj)) : null;
   const headers = adminCallAuth(urlPart, contentBuffer, method);
-  
+
   return rp({
     method,
     uri: config.apiBase + urlPart,
@@ -49,10 +51,13 @@ function adminCallAuth(path, contentBuffer, method) {
   const headers = {
     UserId: config.adminUserId,
     TresoritDate: date,
-    "Content-Type": "application/json"
+    "Content-Type": "text/css"
   };
 
-  if (contentBuffer) headers["Content-SHA256"] = sha256hex(contentBuffer);
+  if (contentBuffer) {
+    headers["Content-SHA256"] = sha256hex(contentBuffer);
+    headers["Content-Length"] = contentBuffer.length
+  }
 
   const hmacHeaders = Object.keys(headers);
   hmacHeaders.push("HMACHeaders");
