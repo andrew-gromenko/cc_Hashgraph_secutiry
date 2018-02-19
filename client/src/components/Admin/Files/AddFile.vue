@@ -69,19 +69,9 @@ export default {
     onFiles (val) {
       this.file = val[0]
     },
-    encryptFile (file) {
-      return new Promise((resolve, reject) => {
-        var reader = new FileReader()
-
-        reader.onload = async () => {
-          const data = await zkitSDK.encrypt(this.group.tresorId, reader.result)
-
-          resolve(data)
-        }
-        reader.onerror = reject
-
-        reader.readAsText(file)
-      })
+    async encryptFile (file) {
+      const res = await zkitSDK.encryptBlob(this.group.tresorId, file)
+      return res
     },
     async submit () {
       if (!this.group) {
@@ -91,7 +81,7 @@ export default {
 
       const id = await this.$http('post', '/api/files', {
         name: this.name,
-        encryptedString: await this.encryptFile(this.file),
+        encryptedData: await this.encryptFile(this.file),
         groupId: this.group.id
       })
       const file = await this.$http('get', `/api/files/${id}`)
