@@ -66,20 +66,29 @@ router.post('/users', async (req, res) => {
 // GET
 router.get('/files', async (req, res) => {
   const { substr } = req.query
+  // check if this is admin
   let find = {}
   if (substr) {
     find = { name: { $regex: req.query.substr, $options: 'i' } }
-  }
-  // check if this is admin
+
+    const files = await File.find(find)
+    res.json(files)
+    return;
+  } 
+
   const files = await File.find(find)
-  res.json(files)
+  const filesWithGroup = await Promise.all(files.map(async f => {
+    return {...f.toJSON(), group: await Group.findById(f.groupId)}
+  }))
+  res.json(filesWithGroup)
 })
 
 router.get('/files/:id', async (req, res) => {
   const { id } = req.params
   // check if this is admin
-  const files = await File.findById(id)
-  res.json(files)
+  const file = await File.findById(id)
+  const group = await Group.findById(file.groupId)
+  res.json({...file.toJSON(), group})
 })
 
 router.get('/groups/:id', async (req, res) => {
@@ -161,16 +170,6 @@ router.get('/user/count', async (req, res) => {
 });
 
 // GET
-
-// fuzzy search
-router.get('/files', async (req, res) => {
-  try {
-    const files = await File.find()
-    res.json(files)
-  } catch (err) {
-    res.status(400).end(err.message)
-  }
-})
 
 // // UPDATE GROUP - add fileId or userId to a group
 router.patch('/groups/:groupId', async (req, res) => {

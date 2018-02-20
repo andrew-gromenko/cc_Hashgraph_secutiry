@@ -10,6 +10,7 @@ v-flex
   v-list
       v-list-tile(v-for='file in files', :key='file.id')
           v-list-tile-title(v-text='file.name')
+          v-chip {{file.group.name}}
           v-btn(icon, @click='deleteFile(file)')
               v-icon delete
   add-button(@click="addPopup = true")
