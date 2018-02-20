@@ -4,7 +4,7 @@ v-list(subheader)
     v-subheader {{group.name}}
     v-list-tile(v-for="file in group.files", :key="file.id")
         v-list-tile-title {{file.name}}
-        v-chip {{getFileExtension(file)}}
+        v-chip {{file.type}}
         v-btn(icon, @click='download(file)')
             v-icon file_download
 </template>
@@ -12,6 +12,7 @@ v-list(subheader)
 <script>
 import FileSaver from 'filesaver.js'
 import * as zkitSDK from 'zerokit-web-sdk'
+import m2e from 'mime-to-extensions'
 
 export default {
   data () {
@@ -21,7 +22,7 @@ export default {
   },
   methods: {
     getFileExtension (file) {
-      return file.type.split('/')[1]
+      return m2e.extension(file.type)
     },
     async download (file) {
       const res = await fetch('/api/download/' + file.id, {
