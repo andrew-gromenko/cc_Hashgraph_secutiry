@@ -25,16 +25,6 @@ export default {
         user = null
       },
       async auth () {
-        // Temporary hack
-        const {count} = await $http('get', '/api/user/count')
-
-        if (count === 0) {
-          user = {
-            id: '000',
-            username: 'Fake admin',
-            role: 'admin'
-          }
-        }
         const whoami = await zkitSdk.whoAmI()
         if (whoami == null) return
 
@@ -46,7 +36,7 @@ export default {
       get isAuth () {
         return user !== null
       },
-      async isAdmin () {
+      isAdmin () {
         return user && user.role === 'admin'
       },
       getUser () {

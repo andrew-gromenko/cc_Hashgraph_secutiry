@@ -31,7 +31,8 @@ router.post('/groups', checkAdmin, async (req, res) => {
 })
 
 router.post('/files', checkAdmin, upload.single('encryptedData'), async (req, res) => {
-  const { name, type, groupId } = req.body
+  const { name, type, groupId, zkitId } = req.body
+  console.log(zkitId)
   const { filename } = req.file
 
   if (!name || typeof name !== 'string') {
@@ -108,7 +109,7 @@ router.get('/download/:id', async (req, res) => {
   res.download(`${__dirname}/../${filesDir}${file.filename}`)
 })
 
-router.get('/groups', async (req, res) => {
+router.get('/groups', checkAdmin, async (req, res) => {
   const { userId } = req.query
   let find = {}
   if (userId) {

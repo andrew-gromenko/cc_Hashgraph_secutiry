@@ -48,7 +48,8 @@ export default {
       const newUser = await this.$http('post', 'api/zkit/finish-user-registration',
         {
           userId,
-          validationVerifier: regResponse.RegValidationVerifier
+          validationVerifier: regResponse.RegValidationVerifier,
+          zkitId: userId
         }
       )
 

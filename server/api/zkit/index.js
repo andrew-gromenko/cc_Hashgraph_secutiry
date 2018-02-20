@@ -5,7 +5,7 @@ const uid = require('uid2')
 const fs = require('fs')
 const path = require('path')
 const smartContract = require('../../contract-calls')
-const adminCheck = require('./middleware')
+const checkAdmin = require('./middleware')
 
 /// / UPLOAD CSS FOR LOGIN/REGISTRATION IFRAME
 const pathCss = path.join('assets', 'form.css')
@@ -53,7 +53,7 @@ router.post('/init-user-registration', async function (req, res, next) {
     address: userAddress
   })
 
-  user.save()
+  await user.save()
 
   res.status(200).json({
     userId: user.zkitId,
@@ -61,7 +61,7 @@ router.post('/init-user-registration', async function (req, res, next) {
   })
 })
 
-router.post('/finish-user-registration', adminCheck, async function (req, res, next) {
+router.post('/finish-user-registration', checkAdmin, async function (req, res, next) {
   const { userId, validationVerifier } = req.body
 
   const validationCode = uid(32)
@@ -72,6 +72,8 @@ router.post('/finish-user-registration', adminCheck, async function (req, res, n
   user.registrationData.validationVerifier = validationVerifier
   user.registrationData.validationCode = validationCode
   user.state = 1
+
+  await user.save()
 
   // validate user when register
   const { sessionId, sessionVerifier } = user.registrationData
@@ -92,6 +94,8 @@ router.get('/user', async function (req, res, next) {
     ? await User.findOne({ username })
     : await User.findOne({ zkitId })
 
+  const userJson = user.toJSON()
+  console.log(userJson)
   if (!user) { return res.status(400).json({ message: 'User does not exist' }) }
 
   res.json(user)
