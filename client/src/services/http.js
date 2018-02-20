@@ -2,13 +2,16 @@ export default {
   install (Vue, { $eventBus }) {
     Vue.prototype.$http = async function http (method, url, data) {
       var res = null
+      var headers = {}
+      if (data && !(data instanceof FormData)) {
+        headers['Content-Type'] = 'application/json'
+      }
+
       try {
         res = await fetch(url, {
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers,
           method: method.toUpperCase(),
-          body: data ? JSON.stringify(data) : null
+          body: data instanceof FormData ? data : (data ? JSON.stringify(data) : null)
         })
 
         const json = await res.json()

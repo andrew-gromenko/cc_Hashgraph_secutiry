@@ -10,6 +10,8 @@ div
     :disabled='disabled'
     ref='fileTextField'
     :rules="rules"
+    :error="fileError",
+    :error-messages="errMessages"
   )
   input(
     type='file'
@@ -49,10 +51,15 @@ export default {
     },
     rules: {
       type: Array
+    },
+    maxSize: {
+      type: Number // bytes
     }
   },
   data () {
     return {
+      fileError: false,
+      errMessages: [],
       filename: ''
     }
   },
@@ -71,6 +78,9 @@ export default {
       }
     },
     onFileChange ($event) {
+      this.errMessages = []
+      this.fileError = false
+
       const files = $event.target.files || $event.dataTransfer.files
 
       if (files) {
@@ -82,8 +92,16 @@ export default {
       } else {
         this.filename = $event.target.value.split('\\').pop()
       }
+
       this.$emit('input', this.filename)
-      this.$emit('files', files)
+
+      if (Array.from(files).some(f => f.size > this.maxSize)) {
+        this.errMessages = ['File is too large']
+        this.fileError = true
+        this.$emit('files', null)
+      } else {
+        this.$emit('files', files)
+      }
     }
   }
 }

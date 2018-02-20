@@ -27,6 +27,7 @@ div
         @files="onFiles"
         required
         :rules="fileRules"
+        :max-size="1024 * 1000 * 100"
       )
   v-card-actions
     v-spacer
@@ -67,11 +68,19 @@ export default {
   },
   methods: {
     onFiles (val) {
+      if (!val) {
+        this.valid = false
+        return
+      }
+      this.valid = true
       this.file = val[0]
     },
     async encryptFile (file) {
-      const res = await zkitSDK.encryptBlob(this.group.tresorId, file)
-      return res
+      try {
+        return await zkitSDK.encryptBlob(this.group.tresorId, file)
+      } catch (e) {
+        this.$eventBus.$emit('notify', e.description)
+      }
     },
     async submit () {
       if (!this.group) {
@@ -79,11 +88,13 @@ export default {
         return
       }
 
-      const id = await this.$http('post', '/api/files', {
-        name: this.name,
-        encryptedData: await this.encryptFile(this.file),
-        groupId: this.group.id
-      })
+      var fd = new FormData()
+      fd.append('name', this.name)
+      fd.append('encryptedData', await this.encryptFile(this.file))
+      fd.append('type', this.file.type)
+      fd.append('groupId', this.group.id)
+
+      const id = await this.$http('post', '/api/files', fd)
       const file = await this.$http('get', `/api/files/${id}`)
 
       this.$emit('onSubmit', file)

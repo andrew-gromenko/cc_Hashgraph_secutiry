@@ -3,6 +3,11 @@ const File = require('../models/File')
 const User = require('../models/User')
 const router = require('express').Router()
 const adminApi = require('./zkit/adminApi')
+const multer = require('multer')
+const fs = require('fs')
+
+var filesDir = 'files/';
+var upload = multer({ dest: filesDir })
 
 router.use('/zkit', require('./zkit'))
 
@@ -26,18 +31,16 @@ router.post('/groups', async (req, res) => {
   }
 })
 
-router.post('/files', async (req, res) => {
-  const { name, encryptedString, groupId } = req.body
+router.post('/files', upload.single('encryptedData'), async (req, res) => {
+  const { name, type, groupId } = req.body
+  const { filename } = req.file
   
   if (!name || typeof name !== 'string') {
     return res.status(400).end('Invalid filename')
   }
-  if (!encryptedString || typeof encryptedString !== 'string') {
-    return res.status(400).end('Invalid encryptedString')
-  }
 
   try {
-    const newFile = await File.create({ name, encryptedString, groupId })
+    const newFile = await File.create({ name, type, filename, groupId })
     res.json(newFile.id)
   } catch (err) {
     res.status(400).end(err.message)
@@ -86,6 +89,18 @@ router.get('/groups/:id', async (req, res) => {
   res.json(group)
 })
 
+router.get('/download/:id', async (req, res) => {
+  const { id } = req.params
+
+  const file = await File.findById(id);
+  
+  if (!file) {
+    return res.status(404).end('File not found')
+  }
+  
+  res.download(`${__dirname}/../${filesDir}${file.filename}`); 
+});
+
 router.get('/groups', async (req, res) => {
   const { userId } = req.query
   let find = {}
@@ -94,8 +109,12 @@ router.get('/groups', async (req, res) => {
   }
   
   const groups = await Group.find(find)
-
-  res.json(groups)
+  
+  const groupFiles = await Promise.all(groups.map(async g => {
+    let files = await File.find({ groupId: g.id })
+    return {...g.toJSON(),files}
+  }));
+  res.json(groupFiles)
 })
 
 router.get('/users', async (req, res) => {
@@ -126,8 +145,10 @@ router.delete('/users/:id', async (req, res) => {
 
 router.delete('/files/:id', async (req, res) => {
   const { id } = req.params
-
-  await File.findByIdAndRemove(id)
+  
+  const file = await File.findById(id);
+  await file.remove(id)
+  await fs.unlink(`${__dirname}/../${filesDir}${file.filename}`)
   await Group.find({ fileIds: id }).update({ $pull: { fileIds: id } })
 
   res.status(200).json({})

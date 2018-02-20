@@ -6,7 +6,8 @@ const File = new Schema({
     type: String,
     unique: true
   },
-  encryptedString: String,
+  filename: String,
+  type: String,
   groupId: Schema.Types.ObjectId
 }, {
   toJSON: {
