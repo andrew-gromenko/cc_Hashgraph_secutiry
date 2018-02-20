@@ -15,8 +15,8 @@ adminApi.uploadCustomContent('css/login.css', fs.readFileSync(pathCss))
 
 
 router.post("/init-user-registration", async function(req, res, next) {
-  const { username } = req.body
-
+  const { username, needAdmin } = req.body
+  
   const existUser = await User.findOne({ username })
   
   if (existUser) {

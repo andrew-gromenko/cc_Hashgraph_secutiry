@@ -12,16 +12,6 @@ div
       .password-frame(ref="frame")
         v-icon.pw1 vpn_key
         v-icon.pw2 vpn_key
-      //v-text-field(
-        prepend-icon='security'
-        required
-        label='Password'
-        v-model="password"
-        :rules="passwordRules"
-        :type="hidePassword ? 'password' : 'text'"
-        :append-icon="hidePassword ? 'visibility_off' : 'visibility'"
-        :append-icon-cb="() => (hidePassword = !hidePassword)"
-      //)
   v-card-actions
     v-spacer
     v-btn(color="primary", @click="submit", :disabled="!valid") Submit
@@ -32,7 +22,7 @@ import { UserRules } from '@/core/validation/rules'
 import * as zkitSdk from 'zerokit-web-sdk'
 
 export default {
-  props: ['onSubmit'],
+  props: ['needAdmin', 'onSubmit'],
   data () {
     return {
       name: '',
@@ -48,7 +38,8 @@ export default {
     async submit () {
       const {userId, regSessionId} = await this.$http('post',
         'api/zkit/init-user-registration', {
-          username: this.name
+          username: this.name,
+          needAdmin: this.needAdmin || false
         }
       )
       if (!userId || !regSessionId) return
@@ -75,6 +66,6 @@ export default {
 </script>
 
 <style lang="sass">
-@import '../../../assets/password-frame'
+@import '../../assets/password-frame'
 
 </style>

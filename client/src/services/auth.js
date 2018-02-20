@@ -31,17 +31,6 @@ export default {
         user = await $http('get', '/api/zkit/user?zkitId=' + whoami)
         if (!user || !user.zkitId) {
           user = null
-
-          // Temporary hack
-          const {count} = await $http('get', '/api/user/count')
-
-          if (count === 0) {
-            user = {
-              id: '000',
-              username: 'Fake admin',
-              role: 'admin'
-            }
-          }
         }
       },
       get isAuth () {

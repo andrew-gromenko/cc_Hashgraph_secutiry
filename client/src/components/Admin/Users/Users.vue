@@ -16,7 +16,7 @@ v-flex
 </template>
 
 <script>
-import AddUser from './AddUser.vue'
+import AddUser from '@/core/components/AddUser.vue'
 import Popup from '@/core/components/Popup'
 import AddButton from '@/core/components/AddButton.vue'
 import ConfirmDialog from '@/core/components/ConfirmDialog'
