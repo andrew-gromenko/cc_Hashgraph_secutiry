@@ -8,12 +8,12 @@ const registrationInfoSchema = new Schema({
   sessionVerifier: { type: String },
   validationVerifier: { type: String },
   validationCode: { type: String }
-});
+})
 
 const User = new Schema({
   username: {
     type: String,
-    required: true, 
+    required: true,
     unique: true
   },
   zkitId: {
@@ -26,6 +26,10 @@ const User = new Schema({
   state: {
     type: Number,
     required: true
+  },
+  address: {
+    type: String,
+    unique: true
   }
 }, {
   toJSON: {

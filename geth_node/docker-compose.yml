@@ -4,7 +4,9 @@ services:
     build: .
     ports:
       - "8545:8545"
-    volumes:
+    entrypoint: geth
+    command: --dev --rpc --rpcaddr "0.0.0.0" --rpcport 8545 --networkid 1324231
+    # volumes:
       # - "./files/geth:/root/.ethereum/geth"
-      - "./files/keystore:/root/.ethereum/keystore"
-      - "./files/password:/root/.ethereum/password"
+      # - "./files/keystore:/root/.ethereum/keystore"
+      # - "./files/password:/root/.ethereum/password"

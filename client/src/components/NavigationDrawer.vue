@@ -51,7 +51,7 @@ export default {
   },
   methods: {
     isShown (item) {
-      return item.role !== 'admin' || (this.$auth.isAdmin() && item.role === 'admin')
+      return item.role !== 'admin' ^ this.$auth.isAdmin()
     }
   }
 }

@@ -2,7 +2,11 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
+
+// Route handlers
 const api = require('./api')
+const zkit = require('./api/zkit')
+
 var morgan = require('morgan')
 require('dotenv').config()
 
@@ -18,11 +22,12 @@ mongoose.connect(process.env.MONGO_URI, {
   }
 })
 mongoose.connection.once('open', () => {
-  console.log('Connected to DB')
+  console.log('Connected to DB TEST')
 })
 
 app.use(express.static('../client/dist'))
 app.use(morgan('combined'))
+app.use('/api/zkit', zkit)
 app.use('/api', api)
 
 app.listen(port, () => console.log(`listening on port ${port}`))

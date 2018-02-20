@@ -1,4 +1,4 @@
-const adminApiCall = require("./apiCall");
+const adminApiCall = require('./apiCall')
 
 module.exports = {
   initUserRegistration,
@@ -30,7 +30,7 @@ module.exports = {
 
   uploadCustomContent
 
-};
+}
 
 /*
  This endpoint on the server returns an object containing:
@@ -38,8 +38,8 @@ module.exports = {
  RegSessionId: This is a public information that identifies this registration process.
  RegSessionVerifier: This is a server side secret, that should never touch the client device. Used during validation.
  */
-function initUserRegistration() {
-  return adminApiCall("/user/init-user-registration", {}); // we need to make this a post
+function initUserRegistration () {
+  return adminApiCall('/user/init-user-registration', {}) // we need to make this a post
 }
 
 /*
@@ -48,41 +48,41 @@ function initUserRegistration() {
  stored on the application server until validation.
  The regValidationVerifier is returned by the sdk registration call, and is sent to and stored on the app server.
  */
-function validateUser(id, regSessionId, regSessionVerifier, regValidationVerifier) {
-  return adminApiCall("/user/validate-user-registration", {
+function validateUser (id, regSessionId, regSessionVerifier, regValidationVerifier) {
+  return adminApiCall('/user/validate-user-registration', {
     RegSessionId: regSessionId,
     RegSessionVerifier: regSessionVerifier,
     RegValidationVerifier: regValidationVerifier,
     UserId: id
-  });
+  })
 }
 
 /*
  This method lists the ids of the members of the tresor
  */
-function listTresorMembers(tresorId) {
-  return adminApiCall("/tresor/list-members?tresorid=" + tresorId);
+function listTresorMembers (tresorId) {
+  return adminApiCall('/tresor/list-members?tresorid=' + tresorId)
 }
 /*
  This method is used to commit the tresor creation operation, before that the tresor is unusable.
  This provides control over the flow of information in your application and serves to synchronize the application and
  the tenant database
  */
-function approveTresorCreation(tresorId) {
-  return adminApiCall("/tresor/approve-tresor-creation", { TresorId: tresorId });
+function approveTresorCreation (tresorId) {
+  return adminApiCall('/tresor/approve-tresor-creation', { TresorId: tresorId })
 }
 /*
  This method is used to reject the tresor creation operation, rendering the tresor completely unusable.
  */
-function rejectTresorCreation(tresorId) {
-  return adminApiCall("/tresor/reject-tresor-creation", { TresorId: tresorId });
+function rejectTresorCreation (tresorId) {
+  return adminApiCall('/tresor/reject-tresor-creation', { TresorId: tresorId })
 }
 
 /*
   This method can be used to get details of the operation, it returns the id of the tresor and the ids of both the inviter and the invited
  */
-function getShareDetails(operationId) {
-  return adminApiCall("/tresor/get-share-details?operationid=" + operationId);
+function getShareDetails (operationId) {
+  return adminApiCall('/tresor/get-share-details?operationid=' + operationId)
 }
 /*
  This method is used to commit the share operation, before approval, the share has no effect on the database and on
@@ -91,96 +91,96 @@ function getShareDetails(operationId) {
  This provides control over the flow of information in your application and serves to synchronize the application and
  the tenant database
  */
-function approveShare(operationId) {
-  return adminApiCall("/tresor/approve-share", { OperationId: operationId });
+function approveShare (operationId) {
+  return adminApiCall('/tresor/approve-share', { OperationId: operationId })
 }
 /*
  This method is used to reject the share operation, rendering it completely ineffective.
  */
-function rejectShare(operationId) {
-  return adminApiCall("/tresor/reject-share", { OperationId: operationId });
+function rejectShare (operationId) {
+  return adminApiCall('/tresor/reject-share', { OperationId: operationId })
 }
 
 /*
  This method can be used to get details of the operation, it returns the id of the tresor and the ids of both the kickerer and the kicked
  */
-function getKickDetails(operationId) {
-  return adminApiCall("/tresor/get-kick-details?operationid=" + operationId);
+function getKickDetails (operationId) {
+  return adminApiCall('/tresor/get-kick-details?operationid=' + operationId)
 }
 /*
  This method is used to approve and commit the kick operation making the uploaded tresor effective.
  */
-function approveKick(operationId) {
-  return adminApiCall("/tresor/approve-kick", { OperationId: operationId });
+function approveKick (operationId) {
+  return adminApiCall('/tresor/approve-kick', { OperationId: operationId })
 }
 /*
  This method is used to reject the kick operation, rendering it completely ineffective.
  */
-function rejectKick(operationId) {
-  return adminApiCall("/tresor/reject-kick", { OperationId: operationId });
+function rejectKick (operationId) {
+  return adminApiCall('/tresor/reject-kick', { OperationId: operationId })
 }
 
 /*
  This method can be used to get details of the operation, it returns the id of the tresor and the ids of both the kickerer and the kicked
  */
-function getInvitationLinkCreationDetails(operationId) {
-  return adminApiCall("/tresor/get-invitation-link-creation-details?operationid=" + operationId);
+function getInvitationLinkCreationDetails (operationId) {
+  return adminApiCall('/tresor/get-invitation-link-creation-details?operationid=' + operationId)
 }
 
 /*
  This method is used to approve and commit the kick operation making the uploaded tresor effective.
  */
-function approveInvitationLinkCreation(operationId) {
-  return adminApiCall("/tresor/approve-invitation-link-creation", { OperationId: operationId });
+function approveInvitationLinkCreation (operationId) {
+  return adminApiCall('/tresor/approve-invitation-link-creation', { OperationId: operationId })
 }
 
 /*
  This method is used to reject the kick operation, rendering it completely ineffective.
  */
-function rejectInvitationLinkCreation(operationId) {
-  return adminApiCall("/tresor/reject-invitation-link-creation", { OperationId: operationId });
+function rejectInvitationLinkCreation (operationId) {
+  return adminApiCall('/tresor/reject-invitation-link-creation', { OperationId: operationId })
 }
 
 /*
  This method can be used to get details of the operation, it returns the id of the tresor and the ids of both the kickerer and the kicked
  */
-function getInvitationLinkAcceptionDetails(operationId) {
-  return adminApiCall("/tresor/get-invitation-link-acception-details?operationid=" + operationId);
+function getInvitationLinkAcceptionDetails (operationId) {
+  return adminApiCall('/tresor/get-invitation-link-acception-details?operationid=' + operationId)
 }
 
 /*
  This method is used to approve and commit the kick operation making the uploaded tresor effective.
  */
-function approveInvitationLinkAcception(operationId) {
-  return adminApiCall("/tresor/approve-invitation-link-acception", { OperationId: operationId });
+function approveInvitationLinkAcception (operationId) {
+  return adminApiCall('/tresor/approve-invitation-link-acception', { OperationId: operationId })
 }
 
 /*
  This method is used to reject the kick operation, rendering it completely ineffective.
  */
-function rejectInvitationLinkAcception(operationId) {
-  return adminApiCall("/tresor/reject-invitation-link-acception", { OperationId: operationId });
+function rejectInvitationLinkAcception (operationId) {
+  return adminApiCall('/tresor/reject-invitation-link-acception', { OperationId: operationId })
 }
 
 /*
  This method can be used to get details of the operation, it returns the id of the tresor and the ids of both the kickerer and the kicked
  */
-function getInvitationLinkRevocationDetails(operationId) {
-  return adminApiCall("/tresor/get-invitation-link-revocation-details?operationid=" + operationId);
+function getInvitationLinkRevocationDetails (operationId) {
+  return adminApiCall('/tresor/get-invitation-link-revocation-details?operationid=' + operationId)
 }
 /*
  This method is used to approve and commit the kick operation making the uploaded tresor effective.
  */
-function approveInvitationLinkRevocation(operationId) {
-  return adminApiCall("/tresor/approve-invitation-link-revocation", { OperationId: operationId });
+function approveInvitationLinkRevocation (operationId) {
+  return adminApiCall('/tresor/approve-invitation-link-revocation', { OperationId: operationId })
 }
 /*
  This method is used to reject the kick operation, rendering it completely ineffective.
  */
-function rejectInvitationLinkRevocation(operationId) {
-  return adminApiCall("/tresor/reject-invitation-link-revocation", { OperationId: operationId });
+function rejectInvitationLinkRevocation (operationId) {
+  return adminApiCall('/tresor/reject-invitation-link-revocation', { OperationId: operationId })
 }
 
-function uploadCustomContent(filename, stream) {
-  return adminApiCall("/tenant/upload-custom-content?filename=" + filename, stream, 'PUT', 'text/css');
+function uploadCustomContent (filename, stream) {
+  return adminApiCall('/tenant/upload-custom-content?filename=' + filename, stream, 'PUT', 'text/css')
 }
