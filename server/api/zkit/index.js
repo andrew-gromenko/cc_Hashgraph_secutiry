@@ -31,11 +31,11 @@ router.post('/init-user-registration', async function (req, res, next) {
     userAddress = admin
   } else {
     if (!zkitId) {
-      return res.status(400).end({ message: 'You have to provide your zkitid in request payload' })
+      return res.status(400).json({ message: 'You have to provide your zkitid in request payload' })
     }
     const requestOriginator = await User.findOne({ zkitId })
     if (requestOriginator.address !== admin) {
-      return res.status(400).end({ message: 'Only admin have privileges to create user' })
+      return res.status(400).json({ message: 'Only admin have privileges to create user' })
     }
     userAddress = createNewUser().address
   }
@@ -94,8 +94,6 @@ router.get('/user', async function (req, res, next) {
     ? await User.findOne({ username })
     : await User.findOne({ zkitId })
 
-  const userJson = user.toJSON()
-  console.log(userJson)
   if (!user) { return res.status(400).json({ message: 'User does not exist' }) }
 
   res.json(user)

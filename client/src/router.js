@@ -64,6 +64,10 @@ router.beforeEach(async (to, from, next) => {
     next({
       name: 'index'
     })
+  } else if (!to.meta.requiresAdmin && auth.isAdmin()) {
+    next({
+      name: 'admin'
+    })
   } else {
     next()
   }

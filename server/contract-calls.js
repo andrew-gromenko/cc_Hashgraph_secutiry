@@ -24,7 +24,7 @@ const main = async () => {
   const createNewUser = () => {
     const acc = accounts.create()
     web3.eth.accounts.wallet.add(acc)
-    web3.eth.accounts.wallet.save('test')
+    // web3.eth.accounts.wallet.save('test') // persist somehow
     return acc
   }
 

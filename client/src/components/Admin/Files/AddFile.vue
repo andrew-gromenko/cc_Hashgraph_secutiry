@@ -77,6 +77,7 @@ export default {
     },
     async encryptFile (file) {
       try {
+        console.log('tresorId', this.group.tresorId)
         return await zkitSDK.encryptBlob(this.group.tresorId, file)
       } catch (e) {
         this.$eventBus.$emit('notify', e.description)
@@ -88,9 +89,14 @@ export default {
         return
       }
 
+      const encryptedBlob = await this.encryptFile(this.file)
+      if (!encryptedBlob) {
+        return
+      }
       var fd = new FormData()
       fd.append('name', this.name)
-      fd.append('encryptedData', await this.encryptFile(this.file))
+      console.log(this.file)
+      fd.append('encryptedData', encryptedBlob)
       fd.append('type', this.file.type)
       fd.append('groupId', this.group.id)
 

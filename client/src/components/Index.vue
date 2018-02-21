@@ -22,6 +22,7 @@ export default {
   },
   methods: {
     getFileExtension (file) {
+      console.log(file, m2e.extension(file.type))
       return m2e.extension(file.type)
     },
     async download (file) {

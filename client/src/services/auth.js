@@ -29,6 +29,8 @@ export default {
         if (whoami == null) return
 
         user = await $http('get', '/api/zkit/user?zkitId=' + whoami)
+        const { admin } = await $http('get', '/api/admin?zkitId=' + whoami)
+        user.role = admin ? 'admin' : 'user'
         if (!user || !user.zkitId) {
           user = null
         }

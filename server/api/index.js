@@ -6,6 +6,7 @@ const adminApi = require('./zkit/adminApi')
 const multer = require('multer')
 const fs = require('fs')
 const checkAdmin = require('./zkit/middleware')
+const smartContract = require('../contract-calls')
 
 var filesDir = 'files/'
 var upload = multer({ dest: filesDir })
@@ -31,8 +32,8 @@ router.post('/groups', checkAdmin, async (req, res) => {
 })
 
 router.post('/files', checkAdmin, upload.single('encryptedData'), async (req, res) => {
-  const { name, type, groupId, zkitId } = req.body
-  console.log(zkitId)
+  const { name, type, groupId, zkitId = req.get('ZkitID-Auth') } = req.body
+  console.log('ZKIT', zkitId, req.get('ZkitID-Auth'))
   const { filename } = req.file
 
   if (!name || typeof name !== 'string') {
@@ -109,7 +110,7 @@ router.get('/download/:id', async (req, res) => {
   res.download(`${__dirname}/../${filesDir}${file.filename}`)
 })
 
-router.get('/groups', checkAdmin, async (req, res) => {
+router.get('/groups', async (req, res) => {
   const { userId } = req.query
   let find = {}
   if (userId) {
@@ -240,6 +241,15 @@ router.delete('/groups/:groupId', checkAdmin, async (req, res) => {
 
   await Group.findByIdAndUpdate(groupId, { $pull: update })
   res.json(resp)
+})
+
+router.get('/admin', async (req, res) => {
+  const { getAdmin } = await smartContract
+  const admin = await getAdmin()
+  const { zkitId } = req.query
+
+  const { address } = await User.findOne({ zkitId })
+  res.json({ admin: address === admin })
 })
 
 module.exports = router

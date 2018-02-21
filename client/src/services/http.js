@@ -6,7 +6,7 @@ export default {
       var res = null
       var headers = {}
       const zkitId = await zkitSDK.whoAmI()
-      headers['Authorization'] = zkitId
+      headers['ZkitID-Auth'] = zkitId
       if (data && !(data instanceof FormData)) {
         headers['Content-Type'] = 'application/json'
       }

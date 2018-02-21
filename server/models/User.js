@@ -34,10 +34,10 @@ const User = new Schema({
   }
 }, {
   toJSON: {
-    async transform (doc, ret, options) {
-      const { getAdmin } = await smartContract
-      const admin = await getAdmin()
-      ret.role = admin === ret.address
+    transform (doc, ret, options) {
+      // const { getAdmin } = await smartContract
+      // const admin = await getAdmin()
+      // ret.role = admin === ret.address
 
       ret.id = ret._id
       delete ret._id

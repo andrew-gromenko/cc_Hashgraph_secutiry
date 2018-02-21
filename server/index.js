@@ -10,6 +10,11 @@ const zkit = require('./api/zkit')
 var morgan = require('morgan')
 require('dotenv').config()
 
+const zkitMiddle = (req, res, next) => {
+  req.body.zkitId = req.get('ZkitID-Auth')
+  console.log(req.get('ZkitID-Auth'), req.body.zkitId)
+  next()
+}
 
 const port = require('../config.json').dev.api.port
 
@@ -27,6 +32,7 @@ mongoose.connection.once('open', () => {
 
 app.use(express.static('../client/dist'))
 app.use(morgan('combined'))
+app.use(zkitMiddle)
 app.use('/api/zkit', zkit)
 app.use('/api', api)
 
