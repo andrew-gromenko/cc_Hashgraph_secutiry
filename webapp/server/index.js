@@ -25,6 +25,7 @@ mongoose.connect(process.env.MONGO_URI, {
     password: process.env.MONGO_PASS
   }
 })
+console.log('MONGO', process.env.MONGO_URI)
 mongoose.connection.once('open', () => {
   console.log('Connected to DB TEST')
 })

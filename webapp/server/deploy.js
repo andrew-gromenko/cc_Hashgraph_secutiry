@@ -6,9 +6,17 @@ const data = fs.readFileSync(path.resolve(__dirname, '../smart-contracts/bin/src
 console.log(abi, data)
 
 const Web3 = require('web3')
-const web3 = new Web3(`http://geth:8545`)
+const web3 = new Web3('http://geth:8545')
 
-const main = async () => {
+const waitPort = require('wait-port')
+
+const params = {
+  host: 'geth',
+  port: 8545
+}
+
+waitPort(params)
+.then(async open => {
   const [account] = await web3.eth.getAccounts()
   var myContract = new web3.eth.Contract(abi, {
     from: account,
@@ -26,9 +34,7 @@ const main = async () => {
     gasPrice: '20000000000'
   })
   .then(newContractInstance => {
+    console.log('here')
     fs.writeFileSync(path.resolve(__dirname, '.addressrc'), newContractInstance.options.address)
   })
-}
-
-main()
-.catch(() => process.exit(1))
+})
