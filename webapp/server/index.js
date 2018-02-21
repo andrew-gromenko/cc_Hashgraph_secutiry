@@ -12,7 +12,6 @@ require('dotenv').config()
 
 const zkitMiddle = (req, res, next) => {
   req.body.zkitId = req.get('ZkitID-Auth')
-  console.log(req.get('ZkitID-Auth'), req.body.zkitId)
   next()
 }
 

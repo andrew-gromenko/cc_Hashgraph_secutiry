@@ -5,3 +5,5 @@ geth
 abi
 bin
 .env
+.adminrc
+geth_node/files/genesis.json

@@ -2,7 +2,7 @@ const fs = require('fs')
 const Accounts = require('web3-eth-accounts')
 const genesisExample = require('./genesis.json')
 
-const accounts = new Accounts('ws://localhost:8546')
+const accounts = new Accounts('ws://geth:8546')
 const admin = accounts.create()
 
 fs.writeFileSync('../geth_node/.adminrc', admin.privateKey.slice(2))

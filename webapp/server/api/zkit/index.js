@@ -5,7 +5,6 @@ const uid = require('uid2')
 const fs = require('fs')
 const path = require('path')
 const smartContract = require('../../contract-calls')
-const checkAdmin = require('./middleware')
 
 /// / UPLOAD CSS FOR LOGIN/REGISTRATION IFRAME
 const pathCss = path.join('assets', 'form.css')
@@ -61,7 +60,7 @@ router.post('/init-user-registration', async function (req, res, next) {
   })
 })
 
-router.post('/finish-user-registration', checkAdmin, async function (req, res, next) {
+router.post('/finish-user-registration', async function (req, res, next) {
   const { userId, validationVerifier } = req.body
 
   const validationCode = uid(32)
@@ -82,6 +81,7 @@ router.post('/finish-user-registration', checkAdmin, async function (req, res, n
     await adminApi.validateUser(user.zkitId, sessionId, sessionVerifier, validationVerifier)
   } catch (e) {
     console.log(e)
+    return res.status(400).json({ message: e.message })
   }
 
   res.json({id: user.id, username: user.username})

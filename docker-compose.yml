@@ -1,0 +1,19 @@
+version: '3'
+services:
+  geth:
+    build: ./geth_node
+    entrypoint: geth
+    command: --dev --rpc --rpcaddr "0.0.0.0" --rpcport 8545 --networkid 1324231
+    ports:
+      - 8545:8545
+
+  webapp:
+    build: ./webapp
+    depends_on:
+      - geth
+    command: npm start
+    ports:
+      - 3000:3000
+    environment:
+      GETH: 'geth'
+    restart: always

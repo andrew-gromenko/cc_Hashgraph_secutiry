@@ -6,7 +6,7 @@ const data = fs.readFileSync(path.resolve(__dirname, '../smart-contracts/bin/src
 console.log(abi, data)
 
 const Web3 = require('web3')
-const web3 = new Web3('http://localhost:8545')
+const web3 = new Web3(`http://geth:8545`)
 
 const main = async () => {
   const [account] = await web3.eth.getAccounts()
@@ -31,4 +31,4 @@ const main = async () => {
 }
 
 main()
-.catch(console.log)
+.catch(() => process.exit(1))
