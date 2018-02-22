@@ -56,6 +56,7 @@ export default {
       this.$emit('onSubmit', newUser)
       this.valid = true
       this.name = ''
+      this.password = ''
     }
   },
   mounted () {

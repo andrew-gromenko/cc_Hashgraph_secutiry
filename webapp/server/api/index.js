@@ -32,16 +32,27 @@ router.post('/groups', checkAdmin, async (req, res) => {
 })
 
 router.post('/files', checkAdmin, upload.single('encryptedData'), async (req, res) => {
-  const { name, type, groupId, zkitId = req.get('ZkitID-Auth') } = req.body
-  console.log('ZKIT', zkitId, req.get('ZkitID-Auth'))
+  const { name, type, groupId } = req.body
   const { filename } = req.file
+  const { addPermission } = await smartContract
 
+  const group = await Group.count({ _id: groupId })
+  if (!group) {
+    return res.status(400).json({ message: 'There is no such group'})
+  }
+  if (!type || typeof type !== 'string') {
+    return res.status(400).json({ message: 'Invalid type' })
+  }
   if (!name || typeof name !== 'string') {
     return res.status(400).json({ message: 'Invalid filename' })
   }
-
+  console.log('HERERERQQEWR')
   try {
     const newFile = await File.create({ name, type, filename, groupId })
+    const { userIds } = await Group.findById(groupId).select('userIds')
+    const addresses = await User.find({ _id: userIds }).select('address')
+    await addresses.map(({ address: a }) => addPermission(a, filename))
+    console.log(userIds, addresses)
     res.json(newFile.id)
   } catch (err) {
     res.status(400).json({ message: err.message })
@@ -100,11 +111,23 @@ router.get('/groups/:id', checkAdmin, async (req, res) => {
 
 router.get('/download/:id', async (req, res) => {
   const { id } = req.params
+  const zkitId = req.get('ZkitID-Auth')
+  const { hasPermission } = await smartContract
+
+  if (!zkitId) {
+    res.status(400).json({ message: 'You should provide zkitId' })
+  }
 
   const file = await File.findById(id)
-
   if (!file) {
     return res.status(404).json({ message: 'File not found' })
+  }
+
+  const user = await User.findOne({ zkitId })
+  const possession = await hasPermission(user.address, file.filename)
+
+  if (!possession) {
+    return res.status(400).json({ message: 'You do not have permissoin for this file'})
   }
 
   res.download(`${__dirname}/../${filesDir}${file.filename}`)
@@ -154,11 +177,12 @@ router.delete('/users/:id', checkAdmin, async (req, res) => {
 
 router.delete('/files/:id', checkAdmin, async (req, res) => {
   const { id } = req.params
+  const { removePermission } = await smartContract
 
-  const file = await File.findById(id)
-  await file.remove(id)
+  const removedFile = await File.findByIdAndRemove(id)
   await fs.unlink(`${__dirname}/../${filesDir}${file.filename}`)
-  await Group.find({ fileIds: id }).update({ $pull: { fileIds: id } })
+  const users = await Group.findById(id).select('userIds').populate('userIds')
+  console.log(users, removedFile)
 
   res.status(200).json({})
 })
@@ -173,74 +197,52 @@ router.get('/user/count', async (req, res) => {
 
 // // UPDATE GROUP - add fileId or userId to a group
 router.patch('/groups/:groupId', checkAdmin, async (req, res) => {
-  const { fileId, userId, operationId } = req.body
+  const { userId, operationId } = req.body
   const { groupId } = req.params
-  const file = await File.findOne({ _id: fileId })
-  const user = await User.findOne({ _id: userId })
+  const { addPermission, getPermissions } = await smartContract
 
-  if (typeof fileId !== 'string' && typeof groupId !== 'string' && !fileId && groupId) {
+  if (typeof groupId !== 'string' && groupId) {
     res.status(400).json({ message: 'Invalid fileId or groupId' })
   }
 
-  const update = {}
-  let resp
-  if (fileId && typeof fileId === 'string') {
-    if (!file) {
-      return res.status(400).json({ message: 'Invalid fileId' })
-    }
-    update['fileIds'] = fileId
-    resp = file
-  }
   if (userId && typeof userId === 'string') {
+    const user = await User.findOne({ _id: userId })
     if (!user) {
       return res.status(400).json({ message: 'Invalid userId' })
     }
     await adminApi.approveShare(operationId)
-    update['userIds'] = userId
-    resp = user
+    await Group.findByIdAndUpdate(groupId, { $addToSet: { userIds: userId } }, { new: true })
+    const files = await File.find({ groupId })
+    await files.map(f => addPermission(user.address, f.filename))
+    getPermissions()
+    res.json(user)
   }
-
-  await Group.findByIdAndUpdate(groupId, { $addToSet: update }, { new: true })
-  res.json(resp)
 })
 
-// // REMOVE GROUP or remove fileId or userId from a group
 router.delete('/groups/:groupId', checkAdmin, async (req, res) => {
-  const { fileId, userId, operationId } = req.body
+  const { userId, operationId, zkitId } = req.body
   const { groupId } = req.params
+  const { removePermission } = await smartContract
 
-  if (!fileId && !userId) { // Hot fix for group removing. Need to separate from removing fileId or userId
-    await Group.findByIdAndRemove(groupId)
-    return res.status(200).json({})
+  if (typeof groupId !== 'string' && groupId) {
+    res.status(400).json({ message: 'Invalid groupId' })
   }
 
-  const file = await File.findOne({ _id: fileId })
-  const user = await User.findOne({ _id: userId })
-
-  if (typeof fileId !== 'string' && typeof groupId !== 'string' && !fileId && groupId) {
-    res.status(400).json({ message: 'Invalid fileId or groupId' })
-  }
-
-  const update = {}
-  let resp
-  if (fileId && typeof fileId === 'string') {
-    if (!file) {
-      return res.status(400).json({ message: 'Invalid fileId' })
-    }
-    update['fileIds'] = fileId
-    resp = file
-  }
   if (userId && typeof userId === 'string') {
+    const user = await User.findOne({ _id: userId })
     if (!user) {
       return res.status(400).json({ message: 'Invalid userId' })
     }
     await adminApi.approveKick(operationId)
-    update['userIds'] = userId
-    resp = user
+    const up = await Group.findByIdAndUpdate(groupId, { $pull: { userIds: userId } }, { new: true })
+    const files = await File.find({ groupId })
+    await files.map(f => removePermission(user.address, f.filename))
+    res.json(up)
   }
 
-  await Group.findByIdAndUpdate(groupId, { $pull: update })
-  res.json(resp)
+  await Group.findByIdAndRemove(groupId)
+  await File.deleteMany({ groupId })
+  return res.status(200).json({})
 })
 
 router.get('/admin', async (req, res) => {

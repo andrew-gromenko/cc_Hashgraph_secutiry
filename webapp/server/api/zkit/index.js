@@ -15,7 +15,7 @@ adminApi.uploadCustomContent('css/login.css', fs.readFileSync(pathCss))
 
 router.post('/init-user-registration', async function (req, res, next) {
   const { username, zkitId } = req.body
-  const { getAdmin, createNewUser } = await smartContract
+  const { getAdmin, createNewUser, addPermission } = await smartContract
 
   const existUser = await User.findOne({ username })
 

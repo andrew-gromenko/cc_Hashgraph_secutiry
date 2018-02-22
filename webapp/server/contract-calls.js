@@ -17,7 +17,7 @@ const main = async () => {
     gasPrice: '20000000000', // default gas price in wei, 20 gwei in this case
     gas: 2000000
   })
-  const addPermission = (...args) => myContract.methods.adminAddPermission(...args).send()
+  const addPermission = (addr, str) => myContract.methods.adminAddPermission(addr, web3.utils.utf8ToHex(str)).send()
   const removePermission = (...args) => myContract.methods.adminRemovePermission(...args).send()
   const hasPermission = (...args) => myContract.methods.hasPermission(...args).call()
   const getAdmin = () => myContract.methods.owner().call()
