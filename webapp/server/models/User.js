@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-const smartContract = require('../contract-calls')
 
 /// https://github.com/tresorit/ZeroKit-NodeJs-backend-sample/blob/master/zkitApi/user.js
 

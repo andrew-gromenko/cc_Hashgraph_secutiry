@@ -34,7 +34,7 @@ router.post('/groups', checkAdmin, async (req, res) => {
 router.post('/files', checkAdmin, upload.single('encryptedData'), async (req, res) => {
   const { name, type, groupId } = req.body
   const { filename } = req.file
-  const { addPermission } = await smartContract
+  const { addPermission, hasPermission } = await smartContract
 
   const group = await Group.count({ _id: groupId })
   if (!group) {
@@ -46,12 +46,16 @@ router.post('/files', checkAdmin, upload.single('encryptedData'), async (req, re
   if (!name || typeof name !== 'string') {
     return res.status(400).json({ message: 'Invalid filename' })
   }
-  console.log('HERERERQQEWR')
   try {
     const newFile = await File.create({ name, type, filename, groupId })
     const { userIds } = await Group.findById(groupId).select('userIds')
     const addresses = await User.find({ _id: userIds }).select('address')
-    await addresses.map(({ address: a }) => addPermission(a, filename))
+    await addresses.map(async ({ address: a }) => {
+      const perm = await addPermission(a, filename)
+      const hasPerm = await hasPermission(a, filename)
+      console.log('hasPerm, upload: ', hasPerm)
+      return perm
+    })
     console.log(userIds, addresses)
     res.json(newFile.id)
   } catch (err) {
@@ -113,9 +117,10 @@ router.get('/download/:id', async (req, res) => {
   const { id } = req.params
   const zkitId = req.get('ZkitID-Auth')
   const { hasPermission } = await smartContract
+  console.log(zkitId)
 
   if (!zkitId) {
-    res.status(400).json({ message: 'You should provide zkitId' })
+    return res.status(400).json({ message: 'You should provide zkitId' })
   }
 
   const file = await File.findById(id)
@@ -126,8 +131,9 @@ router.get('/download/:id', async (req, res) => {
   const user = await User.findOne({ zkitId })
   const possession = await hasPermission(user.address, file.filename)
 
+  console.log('Possesion: ', possession)
   if (!possession) {
-    return res.status(400).json({ message: 'You do not have permissoin for this file'})
+    return res.status(400).json({ message: 'You do not have permissoin for this file' })
   }
 
   res.download(`${__dirname}/../${filesDir}${file.filename}`)
@@ -177,12 +183,21 @@ router.delete('/users/:id', checkAdmin, async (req, res) => {
 
 router.delete('/files/:id', checkAdmin, async (req, res) => {
   const { id } = req.params
-  const { removePermission } = await smartContract
+  const { removePermission, hasPermission } = await smartContract
 
   const removedFile = await File.findByIdAndRemove(id)
-  await fs.unlink(`${__dirname}/../${filesDir}${file.filename}`)
-  const users = await Group.findById(id).select('userIds').populate('userIds')
-  console.log(users, removedFile)
+  await fs.unlink(`${__dirname}/../${filesDir}${removedFile.filename}`)
+  const { userIds: users } = await Group.findById(removedFile.groupId).select('userIds').populate('userIds')
+  console.log(users)
+  await users.map(async u => {
+    console.log('HERERERER')
+    const a = await hasPermission(u.address, removedFile.filename)
+    const b = await removePermission(u.address, removedFile.filename)
+    const c = await hasPermission(u.address, removedFile.filename)
+    console.log(a, b, c)
+    return b
+  })
+  console.log('Removed File: ', removedFile)
 
   res.status(200).json({})
 })
@@ -199,7 +214,7 @@ router.get('/user/count', async (req, res) => {
 router.patch('/groups/:groupId', checkAdmin, async (req, res) => {
   const { userId, operationId } = req.body
   const { groupId } = req.params
-  const { addPermission, getPermissions } = await smartContract
+  const { addPermission, hasPermission } = await smartContract
 
   if (typeof groupId !== 'string' && groupId) {
     res.status(400).json({ message: 'Invalid fileId or groupId' })
@@ -213,16 +228,20 @@ router.patch('/groups/:groupId', checkAdmin, async (req, res) => {
     await adminApi.approveShare(operationId)
     await Group.findByIdAndUpdate(groupId, { $addToSet: { userIds: userId } }, { new: true })
     const files = await File.find({ groupId })
-    await files.map(f => addPermission(user.address, f.filename))
-    getPermissions()
+    await files.map(async f => {
+      const perm = await addPermission(user.address, f.filename)
+      const hasPerm = await hasPermission(user.address, f.filename)
+      console.log('hasPerm, groupChange: ', hasPerm)
+      return perm
+    })
     res.json(user)
   }
 })
 
 router.delete('/groups/:groupId', checkAdmin, async (req, res) => {
-  const { userId, operationId, zkitId } = req.body
+  const { userId, operationId } = req.body
   const { groupId } = req.params
-  const { removePermission } = await smartContract
+  const { removePermission, hasPermission } = await smartContract
 
   if (typeof groupId !== 'string' && groupId) {
     res.status(400).json({ message: 'Invalid groupId' })
@@ -236,12 +255,32 @@ router.delete('/groups/:groupId', checkAdmin, async (req, res) => {
     await adminApi.approveKick(operationId)
     const up = await Group.findByIdAndUpdate(groupId, { $pull: { userIds: userId } }, { new: true })
     const files = await File.find({ groupId })
-    await files.map(f => removePermission(user.address, f.filename))
-    res.json(up)
+    await files.map(async f => {
+      const before = await hasPermission(user.address, f.filename)
+      const rem = await removePermission(user.address, f.filename)
+      const after = await hasPermission(user.address, f.filename)
+      console.log(before, rem, after)
+      return rem
+    })
+    console.log('Files: ', files)
+    return res.json(up)
   }
 
+  const queryRes = await Group.findById(groupId).select('userIds').populate('userIds')
+  const { userIds: users } = queryRes
   await Group.findByIdAndRemove(groupId)
+  const files = await File.find({ groupId })
   await File.deleteMany({ groupId })
+  console.log('queryRes', queryRes)
+  await files.map(async f => {
+    await users.map(async u => {
+      const before = await hasPermission(u.address, f.filename)
+      const rem = await removePermission(u.address, f.filename)
+      const after = await hasPermission(u.address, f.filename)
+      console.log('Group deletion', before, rem, after)
+    })
+  })
+  console.log(files)
   return res.status(200).json({})
 })
 

@@ -1,3 +1,4 @@
+require('./db-script')
 const path = require('path')
 const fs = require('fs')
 
@@ -6,7 +7,7 @@ const data = fs.readFileSync(path.resolve(__dirname, '../smart-contracts/bin/src
 console.log(abi, data)
 
 const Web3 = require('web3')
-const web3 = new Web3('http://geth:8545')
+const web3 = new Web3(`http://${process.env.GETH_URL}:8545`)
 
 const waitPort = require('wait-port')
 

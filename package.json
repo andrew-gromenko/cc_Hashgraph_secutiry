@@ -1,0 +1,22 @@
+{
+  "name": "sss",
+  "version": "1.0.0",
+  "description": "1. docker-compose up 2. docker exec -it gethnode_geth_1 geth attach ipc:/tmp/geth.ipc",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ENV=.env docker-compose up --build",
+    "dev": "ENV=.env.dev docker-compose up --build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/code-care/ss.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/code-care/ss/issues"
+  },
+  "homepage": "https://gitlab.com/code-care/ss#README"
+}

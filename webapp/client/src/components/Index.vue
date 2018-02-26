@@ -26,15 +26,25 @@ export default {
       return m2e.extension(file.type)
     },
     async download (file) {
+      const headers = {}
+      const zkitId = await zkitSDK.whoAmI()
+      headers['ZkitID-Auth'] = zkitId
+      console.log(headers)
       const res = await fetch('/api/download/' + file.id, {
+        headers,
         method: 'GET'
       })
+      if (!res.ok) {
+        const { message } = await res.json()
+        return this.$eventBus.$emit('notify', message)
+      }
+
       const blob = await res.blob()
       var decryptedBlob
       try {
         decryptedBlob = await zkitSDK.decryptBlob(blob)
       } catch (e) {
-        this.$eventBus.$emit('notify', e.description)
+        return this.$eventBus.$emit('notify', e.description)
       }
       FileSaver.saveAs(decryptedBlob, file.name + '.' + this.getFileExtension(file))
     }

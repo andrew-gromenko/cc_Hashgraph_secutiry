@@ -8,7 +8,6 @@ const api = require('./api')
 const zkit = require('./api/zkit')
 
 var morgan = require('morgan')
-require('dotenv').config()
 
 const zkitMiddle = (req, res, next) => {
   req.body.zkitId = req.get('ZkitID-Auth')
@@ -25,9 +24,8 @@ mongoose.connect(process.env.MONGO_URI, {
     password: process.env.MONGO_PASS
   }
 })
-console.log('MONGO', process.env.MONGO_URI)
 mongoose.connection.once('open', () => {
-  console.log('Connected to DB TEST')
+  console.log('Connected to DB')
 })
 
 app.use(express.static('../client/dist'))
