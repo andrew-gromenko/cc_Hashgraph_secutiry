@@ -12,7 +12,7 @@ const web3 = new Web3(`http://${process.env.GETH_URL}:8545`)
 const waitPort = require('wait-port')
 
 const params = {
-  host: 'geth',
+  host: process.env.GETH_URL,
   port: 8545
 }
 

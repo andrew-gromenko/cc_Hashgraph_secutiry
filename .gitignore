@@ -7,3 +7,4 @@ bin
 .env
 .adminrc
 geth_node/files/genesis.json
+.env.dev

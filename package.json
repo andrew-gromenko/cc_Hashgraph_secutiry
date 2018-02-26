@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ENV=.env docker-compose up --build",
+    "start": "ENV=.env docker-compose up -d --build",
     "dev": "ENV=.env.dev docker-compose up --build"
   },
   "repository": {
