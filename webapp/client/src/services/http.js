@@ -16,7 +16,7 @@ export default {
         res = await fetch(url, {
           headers,
           method: method.toUpperCase(),
-          body: data instanceof FormData ? data : (data ? JSON.stringify(data) : null)
+          body: data instanceof FormData ? data : (data ? JSON.stringify(data) : undefined)
         })
 
         const json = await res.json()
