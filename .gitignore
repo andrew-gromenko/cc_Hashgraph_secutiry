@@ -3,7 +3,6 @@ password
 geth
 .addressrc
 abi
-bin
 .env
 .adminrc
 geth_node/files/genesis.json

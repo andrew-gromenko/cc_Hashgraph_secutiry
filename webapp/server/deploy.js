@@ -1,4 +1,4 @@
-require('./db-script')
+console.log("sdajkflJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ")
 const path = require('path')
 const fs = require('fs')
 
@@ -15,17 +15,20 @@ const params = {
   host: process.env.GETH_URL,
   port: 8545
 }
+console.log('asdkfjasdjklfaksldjfkljaskdlfjklasjf')
 
 waitPort(params)
 .then(async open => {
+  console.log('THEN')
   const [account] = await web3.eth.getAccounts()
-  var myContract = new web3.eth.Contract(abi, {
+  const myContract = new web3.eth.Contract(abi, {
     from: account,
     gasPrice: '20000000000', // default gas price in wei, 20 gwei in this case
     gas: 2000000 // gasLimit
   })
+  console.log('erererer')
 
-  myContract.deploy({
+  return myContract.deploy({
     data: '0x' + data,
     arguments: [account]
   })
@@ -34,8 +37,8 @@ waitPort(params)
     gas: 2000000,
     gasPrice: '20000000000'
   })
-  .then(newContractInstance => {
-    console.log('here')
-    fs.writeFileSync(path.resolve(__dirname, '.addressrc'), newContractInstance.options.address)
-  })
+})
+.then(newContractInstance => {
+  console.log('here')
+  fs.writeFileSync(path.resolve(__dirname, '.addressrc'), newContractInstance.options.address)
 })

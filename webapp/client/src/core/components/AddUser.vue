@@ -37,21 +37,22 @@ export default {
   methods: {
     async submit () {
       const {userId, regSessionId} = await this.$http('post',
-        'api/zkit/init-user-registration', {
-          username: this.name,
+        'http://localhost:4000/api/user/init-user-registration', {
+          userName: this.name,
           needAdmin: this.needAdmin || false
         }
       )
       if (!userId || !regSessionId) return
 
       const regResponse = await this.zkitReg.register(userId, regSessionId)
-      const newUser = await this.$http('post', 'api/zkit/finish-user-registration',
+      await this.$http('post', 'http://localhost:4000/api/user/finish-user-registration',
         {
           userId,
           validationVerifier: regResponse.RegValidationVerifier,
           zkitId: userId
         }
       )
+      const newUser = await this.$http('get', 'http://localhost:4000/api/user/get-user-id?userName=' + this.name)
 
       this.$emit('onSubmit', newUser)
       this.valid = true

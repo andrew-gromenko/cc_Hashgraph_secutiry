@@ -42,9 +42,7 @@ var router = new Router({
 
 router.beforeEach(async (to, from, next) => {
   var auth = router.app.$auth
-  if (!auth.isAuth) {
-    await auth.auth()
-  }
+  console.log(auth.isAuth)
 
   if (to.meta.requiresAdmin && !auth.isAdmin()) {
     next({

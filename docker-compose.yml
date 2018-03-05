@@ -3,9 +3,13 @@ services:
   geth:
     build: ./geth_node
     entrypoint: geth
-    command: --dev --rpc --rpcaddr "0.0.0.0" --rpcport 8545 --networkid 1324231
+    command: --dev --rpccorsdomain geth --rpc --rpcaddr "0.0.0.0" --rpcport 8545 --networkid 1324231
     ports:
       - 8545:8545
+    # volumes:
+    #   - type: volume
+    #     source: geth 
+    #     target: /root/.ethereum
 
   webapp:
     build: ./webapp
@@ -17,3 +21,13 @@ services:
     env_file:
       - ${ENV}
     restart: always
+
+  zkit:
+    build: ./webapp/zerokit
+    # environment:
+    #   - DEBUG=*
+    ports:
+      - 4000:3000
+# volumes:
+#   geth:
+# openid_identifier

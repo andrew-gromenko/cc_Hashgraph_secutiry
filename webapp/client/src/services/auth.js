@@ -1,39 +1,56 @@
 import * as zkitSdk from 'zerokit-web-sdk'
 
-var user = null
+let user = null
+
+const idpLogin = () => {
+  return new Promise((resolve, reject) => {
+    const iframe = document.createElement('iframe')
+    iframe.style.display = 'none'
+    document.body.appendChild(iframe)
+
+    document.addEventListener('load', () => {
+      let iframeLocation
+      try {
+        iframeLocation = iframe.contentWindow.location
+        console.log(iframeLocation.origin !== window.location.origin) // try to access origin
+      } catch (e) {
+        reject(e)
+      }
+      if (iframeLocation.pathname === location.pathname) {
+        console.log('End of IDP login')
+        document.body.removeChild(iframe)
+        if (iframeLocation.hash && iframeLocation.hash.indexOf('error') !== -1) {
+          return reject(new Error(iframeLocation.search.substr(1)))
+        }
+      }
+      resolve()
+    })
+
+    iframe.src = `http://localhost:3000/api/auth/login?reto=${encodeURIComponent(location.href)}`
+  })
+}
 
 export default {
   install (Vue, { $http, $eventBus }) {
     Vue.prototype.$auth = {
       async login (zkitLogin, name) {
-        const u = await $http('get', '/api/zkit/user?username=' + name)
-        if (!u.zkitId) {
-          return null
-        }
-        var userId = null
-
         try {
-          userId = await zkitLogin.login(u.zkitId)
-        } catch (e) {
-          $eventBus.$emit('notify', e.description)
-        }
+          const zkitId = await $http('get', `http://localhost:3000/api/user/get-user-id?userName=${name}`)
+          if (!zkitId) {
+            return null
+          }
 
-        return userId
+          const userId = await zkitLogin.login(zkitId)
+          await idpLogin()
+
+          return userId
+        } catch (e) {
+          $eventBus.$emit('notify', e.description || e.message)
+        }
       },
       async logout () {
         await zkitSdk.logout()
         user = null
-      },
-      async auth () {
-        const whoami = await zkitSdk.whoAmI()
-        if (whoami == null) return
-
-        user = await $http('get', '/api/zkit/user?zkitId=' + whoami)
-        const { admin } = await $http('get', '/api/admin?zkitId=' + whoami)
-        user.role = admin ? 'admin' : 'user'
-        if (!user || !user.zkitId) {
-          user = null
-        }
       },
       get isAuth () {
         return user !== null

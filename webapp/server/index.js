@@ -9,6 +9,7 @@ const zkit = require('./api/zkit')
 
 var morgan = require('morgan')
 
+console.log('APPPPPPPPPPPPPPPPPPP')
 const zkitMiddle = (req, res, next) => {
   req.body.zkitId = req.get('ZkitID-Auth')
   next()
@@ -18,6 +19,7 @@ const port = require('../config.json').dev.api.port
 
 // PREREQUISITES
 app.use(bodyParser.json())
+// require('./db-script').then(() => {
 mongoose.connect(process.env.MONGO_URI, {
   auth: {
     user: process.env.MONGO_USER,
@@ -27,7 +29,7 @@ mongoose.connect(process.env.MONGO_URI, {
 mongoose.connection.once('open', () => {
   console.log('Connected to DB')
 })
-
+// })
 app.use(express.static('../client/dist'))
 app.use(morgan('combined'))
 app.use(zkitMiddle)

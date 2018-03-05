@@ -1,0 +1,40 @@
+version: '3.2'
+services:
+  geth:
+    build: ./geth_node
+    entrypoint: geth
+    command: --dev --rpc --rpcaddr "0.0.0.0" --rpccorsdomain "*" --rpcvhosts="*" --rpcport 8545 --networkid 1324231
+    ports:
+      - 8545:8545
+    volumes:
+      - type: volume
+        source: geth 
+        target: /root/.ethereum
+
+  webapp:
+    build: ./webapp
+    depends_on:
+      - geth
+    command: npm start
+    ports:
+      - 3002:3000
+    env_file:
+      - ${ENV}
+    restart: always
+
+  zkit:
+    build: ./webapp/zerokit
+    volumes:
+      - type: bind
+        source: ./webapp/zerokit
+        target: /root/app
+      - type: bind
+        target: /root/app/node_modules
+    command: npm start
+    environment:
+      - DEBUG=Auth
+    ports:
+      - 3000:3000
+volumes:
+  node_modules:
+  geth:

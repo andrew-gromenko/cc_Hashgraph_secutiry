@@ -18,6 +18,7 @@ export default {
   },
   methods: {
     onSubmit (data) {
+      console.log('data, onSubmit registerAdmin should redirect', data)
       this.$router.push({name: 'login'})
     }
   },
