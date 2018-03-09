@@ -1,0 +1,22 @@
+{
+  "name": "smart-contracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build_bin": "solcjs --bin -o data/bin/ src/*",
+    "build_abi": "solcjs --abi -o data/abi/ src/*",
+    "deploy": "node deploy",
+    "start": "npm run build_bin && npm run build_abi && npm run deploy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "solc": "^0.4.19",
+    "wait-port": "^0.2.2",
+    "mongoose": "^5.0.4",
+    "web3": "^1.0.0-beta.29"
+  }
+}

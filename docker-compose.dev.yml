@@ -1,40 +1,60 @@
 version: '3.2'
 services:
   geth:
-    build: ./geth_node
+    image: ethereum/client-go
     entrypoint: geth
-    command: --dev --rpc --rpcaddr "0.0.0.0" --rpccorsdomain "*" --rpcvhosts="*" --rpcport 8545 --networkid 1324231
-    ports:
-      - 8545:8545
+    command: --dev --rpc --rpcaddr "0.0.0.0" --rpccorsdomain "*" --rpcvhosts "*" --rpcport 8545 --networkid 1324231
     volumes:
       - type: volume
         source: geth 
         target: /root/.ethereum
 
-  webapp:
-    build: ./webapp
+  eth:
+    build: 
+      context: .
+      dockerfile: Dockerfile-eth
+    env_file:
+      - .env.dev
     depends_on:
       - geth
-    command: npm start
+    volumes:
+        - data:/root/app/eth/data
+  
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile-client
+    command: npm run build
     ports:
       - 3002:3000
     env_file:
-      - ${ENV}
-    restart: always
-
-  zkit:
-    build: ./webapp/zerokit
+      - .env.dev
     volumes:
-      - type: bind
-        source: ./webapp/zerokit
-        target: /root/app
-      - type: bind
-        target: /root/app/node_modules
-    command: npm start
-    environment:
-      - DEBUG=Auth
+      - ./client:/root/app/client
+      - /root/app/client/node_modules
+      - dist:/root/app/client/dist
+
+  server:
+    build: 
+      context: .
+      dockerfile: Dockerfile-server
+    command: npm run dev
+    depends_on:
+      - geth
+      - eth
     ports:
       - 3000:3000
+    env_file:
+      - .env.dev
+    volumes:
+      - ./server:/root/app/server
+      - /root/app/server/node_modules
+      - data:/root/app/server/data
+      - dist:/root/app/server/public
+
+
+
 volumes:
-  node_modules:
   geth:
+  data:
+  dist:

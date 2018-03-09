@@ -1,9 +1,7 @@
-keystore
-password
-geth
-.addressrc
 abi
-.env
+bin
 .adminrc
-geth_node/files/genesis.json
-.env.dev
+.addressrc
+.env*
+node_modules
+files

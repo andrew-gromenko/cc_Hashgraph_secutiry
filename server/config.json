@@ -1,0 +1,18 @@
+{
+  "dbUrl": "mongodb://zerokit-db:cFzhixp7BqXQcNHKDySLS3ASgjRLrnkEabG43pCzjzCaZNgdNoUAqho0f2UNLfIND3rxqWyc1LHxJlNwwjwGrQ==@zerokit-db.documents.azure.com:10255/?ssl=true&replicaSet=globaldb",
+  "baseUrl": "http://localhost",
+  "appOrigins": ["http://localhost:3000", "http://localhost:3002"],
+  "zeroKit": {
+    "serviceUrl": "https://whif2b47eh.api.tresorit.io",
+    "adminUserId": "admin@whif2b47eh.tresorit.io",
+    "adminKey": "24d079c22bc52dc5fd38ca5e3cab350f096f53e283dd8271eddb6d41aa15aa3f",
+    "sdkVersion": "4",
+    "idp": [
+      {
+        "clientID": "whif2b47eh_NEV8RLPhp4",
+        "clientSecret": "8yQ14rRSKEPQ2rr9",
+        "callbackURL": "http://localhost:3000/api/auth/callback"
+      }
+    ]
+  }
+}

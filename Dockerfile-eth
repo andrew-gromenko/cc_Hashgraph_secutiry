@@ -1,0 +1,9 @@
+FROM node:latest
+
+WORKDIR /root/app/eth
+COPY eth/package*.json ./
+RUN npm install
+
+COPY eth ./
+
+CMD npm start
