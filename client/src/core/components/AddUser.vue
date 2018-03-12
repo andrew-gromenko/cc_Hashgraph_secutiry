@@ -33,11 +33,11 @@ export default {
       nameRules: UserRules.name,
       passwordRules: UserRules.password,
       zkitReg: null,
-      qrCode: 'lol'
+      qrCode: null
     }
   },
   methods: {
-    async submit () {
+    async startReg () {
       const {userId, regSessionId} = await this.$http('post', 'http://localhost:3000/api/user/init-user-registration', {
         username: this.name,
         needAdmin: this.needAdmin || false
@@ -60,6 +60,9 @@ export default {
       this.valid = true
       this.name = ''
       this.password = ''
+    },
+    async finishReg () {
+
     }
   },
   mounted () {

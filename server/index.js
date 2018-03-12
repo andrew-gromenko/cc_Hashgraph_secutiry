@@ -24,9 +24,12 @@ const port = process.env.PORT
 const helmet = require('helmet')
 
 app.use(cors({ origin: config.appOrigins, credentials: true }))
-app.use(helmet())
-app.use(helmet.noCache())
-app.use(helmet.referrerPolicy({ policy: 'no-referrer' }))
+// app.use(helmet())
+// app.use(helmet.noCache())
+// app.use(helmet.referrerPolicy({ policy: 'no-referrer' }))
+// app.use(helmet({
+//   frameguard: false
+// }))
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -63,6 +66,7 @@ app.use((req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
+  console.error(err)
   err = err && err.code ? err : ({ code: 400, message: 'Unexpected' })
 
   console.log('Error: \n%O', err)

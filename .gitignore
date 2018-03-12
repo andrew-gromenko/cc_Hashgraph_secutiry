@@ -4,4 +4,3 @@ bin
 .addressrc
 .env*
 node_modules
-files

@@ -24,9 +24,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-client
-    command: npm run build
+    command: npm run serve
     ports:
-      - 3002:3000
+      - 3002:3002
     env_file:
       - .env.dev
     volumes:
@@ -42,6 +42,7 @@ services:
     depends_on:
       - geth
       - eth
+      - client
     ports:
       - 3000:3000
     env_file:
@@ -50,7 +51,7 @@ services:
       - ./server:/root/app/server
       - /root/app/server/node_modules
       - data:/root/app/server/data
-      - dist:/root/app/server/public
+      - dist:/root/app/server/dist
 
 
 

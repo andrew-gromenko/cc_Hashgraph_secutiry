@@ -3,7 +3,7 @@ import * as zkitSdk from 'zerokit-web-sdk'
 let user = null
 let admin = false
 
-const idpLogin = (token, cb) => {
+const idpLogin = (token, name, cb) => {
   const iframe = document.createElement('iframe')
   iframe.style.display = 'none'
   document.body.appendChild(iframe)
@@ -27,7 +27,7 @@ const idpLogin = (token, cb) => {
     }
   })
 
-  iframe.src = `http://localhost:3000/api/auth/login?reto=${encodeURIComponent(location.href)}&token=${token}`
+  iframe.src = `http://localhost:3000/api/auth/login?reto=${encodeURIComponent(location.href)}&token=${token}&username=${name}`
 }
 
 export default {
@@ -42,11 +42,11 @@ export default {
           }
 
           const userId = await zkitLogin.login(zkitId)
-          await idpLogin(token, async err => {
+          await idpLogin(token, name, async err => {
             if (err) {
               throw err
             }
-            user = await $http('get', `/api/user/`)
+            user = await $http('get', `/api/user/me`)
             const { zkitId: adminId } = await $http('get', '/api/user/admin')
             admin = adminId === user.address
             console.log('User: ', user, admin)

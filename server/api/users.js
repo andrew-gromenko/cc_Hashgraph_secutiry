@@ -54,6 +54,14 @@ router.get('/', checkAdmin, async (req, res) => {
   res.json(users)
 })
 
+router.get('/me', async (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ message: 'Not authenticated' })
+  }
+  const user = await User.findById(req.user.id)
+  res.json(user)
+})
+
 router.get('/:id', checkAdmin, async (req, res) => {
   const { id } = req.params
 
@@ -150,7 +158,7 @@ router.post('/finish-user-registration', async (req, res) => {
 
   user.registrationData.validationVerifier = validationVerifier
   user.registrationData.validationCode = validationCode
-  user.state = 1
+  user.state = 2
 
   await user.save()
 
