@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     async addItem (id) {
-      const user = await this.$http('get', '/api/users/' + id)
+      const user = await this.$http('get', '/api/user/' + id)
 
       var operationId = null
       try {
@@ -66,7 +66,7 @@ export default {
         return
       }
 
-      const item = await this.$http('patch', `/api/groups/${this.group.id}`, { [this.target + 'Id']: id, operationId })
+      const item = await this.$http('patch', `/api/group/${this.group.id}`, { [this.target + 'Id']: id, operationId })
 
       if (this.items.find(i => i.id === item.id)) {
         this.$eventBus.$emit('notify', this.target + ' already exist')
@@ -75,7 +75,7 @@ export default {
       }
     },
     async removeItem (id) {
-      const user = await this.$http('get', '/api/users/' + id)
+      const user = await this.$http('get', '/api/user/' + id)
 
       var operationId = null
       try {
@@ -85,13 +85,13 @@ export default {
         return
       }
 
-      await this.$http('delete', `/api/groups/${this.group.id}`, { [this.target + 'Id']: id, operationId })
+      await this.$http('delete', `/api/group/${this.group.id}`, { [this.target + 'Id']: id, operationId })
       const item = this.items.find(i => i.id === id)
       this.items.splice(this.items.indexOf(item), 1)
     },
     async querySelections (query) {
       this.loading = true
-      this.searchItems = await this.$http('get', `/api/${this.target}s?substr=${query}`)
+      this.searchItems = await this.$http('get', `/api/${this.target}?substr=${query}`)
       this.loading = false
     }
   }

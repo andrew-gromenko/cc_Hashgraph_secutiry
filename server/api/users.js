@@ -28,11 +28,16 @@ router.get('/admin', async (req, res) => {
   const { getAdmin } = await smartContract
   const adminAddress = await getAdmin()
   const { zkitId } = req.query
+  console.log(zkitId)
 
   if (zkitId) {
-    const { address } = await User.findOne({ zkitId })
-    return res.json({ admin: address === adminAddress })
+    console.log('ZKITID')
+    const a = await User.findOne({ zkitId })
+    console.log(a)
+    return res.json({ admin: a.address === adminAddress })
   }
+  const users = await User.find()
+  console.log(users)
   const admin = await User.findOne({ address: adminAddress })
   return res.json({ admin })
 })
@@ -54,6 +59,24 @@ router.get('/', checkAdmin, async (req, res) => {
   res.json(users)
 })
 
+router.get('/get-by-zkit', checkAdmin, async (req, res) => {
+  const { zkitId } = req.query
+  if (!zkitId) {
+    res.status(400).json({ message: 'You should provide zkitId' })
+  }
+  console.log(zkitId)
+  const user = await User.findOne({ zkitId })
+  res.json(user)
+})
+
+router.post('/enable-2factor-auth', async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: 'You should be authenticated to access thsi route' })
+  }
+  await User.findByIdAndUpdate(req.user.id, { twoFactorAuth: true })
+  res.json({})
+})
+
 router.get('/me', async (req, res, next) => {
   if (!req.isAuthenticated()) {
     res.status(401).json({ message: 'Not authenticated' })
@@ -65,8 +88,8 @@ router.get('/me', async (req, res, next) => {
 router.get('/:id', checkAdmin, async (req, res) => {
   const { id } = req.params
 
-  const users = await User.findById(id)
-  res.json(users)
+  const user = await User.findById(id)
+  res.json(user)
 })
 
 router.delete('/:id', checkAdmin, async (req, res) => {
@@ -94,7 +117,7 @@ router.post('/', checkAdmin, async (req, res) => {
 })
 
 router.post('/init-user-registration', async (req, res) => {
-  const { username, zkitId } = req.body
+  const { username } = req.body
   const { getAdmin, createNewUser } = await smartContract
 
   const existUser = await User.findOne({ username })
@@ -110,11 +133,10 @@ router.post('/init-user-registration', async (req, res) => {
   if (userCount === 0) {
     userAddress = admin
   } else {
-    if (!zkitId) {
-      return res.status(400).json({ message: 'You have to provide your zkitid in request payload' })
+    if (!req.isAuthenticated()) {
+      res.status(401).json({ message: 'You have to be authenticated to access this route' })
     }
-    const requestOriginator = await User.findOne({ zkitId })
-    if (requestOriginator.address !== admin) {
+    if (req.user.address !== admin) {
       return res.status(400).json({ message: 'Only admin have privileges to create user' })
     }
     userAddress = createNewUser().address
@@ -130,7 +152,7 @@ router.post('/init-user-registration', async (req, res) => {
       sessionVerifier: initInfo.RegSessionVerifier
     },
     state: 0,
-    address: userAddress,
+    address: userAddress
   })
 
   await user.save()
@@ -142,7 +164,7 @@ router.post('/init-user-registration', async (req, res) => {
 })
 
 router.post('/finish-user-registration', async (req, res) => {
-  const { userId, validationVerifier, token } = req.body
+  const { userId, validationVerifier } = req.body
 
   const validationCode = uid(32)
   const user = await User.findOne({ zkitId: userId, state: 0 })
@@ -153,8 +175,9 @@ router.post('/finish-user-registration', async (req, res) => {
 
   if (user.state !== 0) throw new Error('UserInWrongState')
 
-  const secretData = twoFactor.generateSecret({ name: 'sapientiae.tech', account: user.username });
+  const secretData = twoFactor.generateSecret({ name: 'sapientiae.tech', account: user.username })
   user.secret = secretData.secret
+  user.qr = secretData.qr
 
   user.registrationData.validationVerifier = validationVerifier
   user.registrationData.validationCode = validationCode
@@ -169,8 +192,8 @@ router.post('/finish-user-registration', async (req, res) => {
   } catch (e) {
     console.log(e)
     return res.status(400).json({ message: e.message })
-  } 
-  res.json({id: user.id, username: user.username, qrCode: secretData.qr})
+  }
+  res.json({id: user.id, username: user.username, qrCode: secretData.qr, user})
 })
 
 module.exports = router

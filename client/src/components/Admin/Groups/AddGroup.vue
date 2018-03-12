@@ -31,12 +31,12 @@ export default {
     async submit () {
       const tresorId = await zkitSDK.createTresor()
 
-      const id = await this.$http('post', '/api/groups', {
+      const id = await this.$http('post', '/api/group', {
         name: this.name,
         tresorId,
         userIds: []
       })
-      const group = await this.$http('get', `/api/groups/${id}`)
+      const group = await this.$http('get', `/api/group/${id}`)
 
       this.$emit('onSubmit', group)
       this.valid = true

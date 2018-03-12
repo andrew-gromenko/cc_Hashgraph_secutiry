@@ -9,13 +9,13 @@ var twoFactor = require('node-2fa')
 
 const client = config.zeroKit.idp[0]
 
-passport.serializeUser((user, done) => { console.log('USER: ', user); done(null, user); })
-passport.deserializeUser((obj, done) => { console.log('USER: ', obj); done(null, obj); })
+passport.serializeUser((user, done) => { console.log('USER: ', user); done(null, user) })
+passport.deserializeUser((obj, done) => { console.log('USER: ', obj); done(null, obj) })
 
 const openidVerifyCallback = (iss, sub, profile, jwtClaims, accessToken, refreshToken, params, verifiedCb) => {
   console.log('PROFILE: ', profile.id)
- return User.findOne({ zkitId: profile.id })
-    .then(user => { console.log(user); return user; })
+  return User.findOne({ zkitId: profile.id })
+    .then(user => { console.log(user); return user })
     .then(user => ({ error: null, user }))
     .then(({ error, user }) => verifiedCb(error, user))
 }
@@ -31,14 +31,16 @@ const authApi = require('express').Router()
 authApi.get('/login', async (req, res, next) => {
   const { token, username } = req.query
   const user = await User.findOne({ username })
-  if (!token) {
-    return res.status(400).json({ message: 'You should provide a token' })
-  }
-  
-  const verify = twoFactor.verifyToken(user.secret, token)
-  console.log(user, user.secret, verify, token)
-  if (!verify || verify.delta !== 0) {
-    return res.status(401).json({ message: 'The token you entered is incorect' })
+  if (user.twoFactorAuth) {
+    if (!token) {
+      return res.status(400).json({ message: 'You should provide a token' })
+    }
+
+    const verify = twoFactor.verifyToken(user.secret, token)
+    console.log(user, user.secret, verify, token)
+    if (!verify || verify.delta !== 0) {
+      return res.status(401).json({ message: 'The token you entered is incorect' })
+    }
   }
 
   req.session.returnTo = req.query.reto

@@ -9,7 +9,6 @@ div
         v-model="name"
         :rules="nameRules"
       )
-      img(:src="qrCode")
       .password-frame(ref="frame")
         v-icon.pw1 vpn_key
         v-icon.pw2 vpn_key
@@ -33,36 +32,26 @@ export default {
       nameRules: UserRules.name,
       passwordRules: UserRules.password,
       zkitReg: null,
-      qrCode: null
     }
   },
   methods: {
-    async startReg () {
+    async submit () {
       const {userId, regSessionId} = await this.$http('post', 'http://localhost:3000/api/user/init-user-registration', {
         username: this.name,
-        needAdmin: this.needAdmin || false
       })
       if (!userId || !regSessionId) {
         return
       }
 
       const regResponse = await this.zkitReg.register(userId, regSessionId)
-      const { qrCode } = await this.$http('post', 'http://localhost:3000/api/user/finish-user-registration', {
+      const newUser = await this.$http('post', 'http://localhost:3000/api/user/finish-user-registration', {
         userId,
         validationVerifier: regResponse.RegValidationVerifier,
-        zkitId: userId
       })
-      console.log(qrCode)
-      this.qrCode = qrCode
-      const newUser = await this.$http('get', 'http://localhost:3000/api/user/get-user-id?userName=' + this.name)
 
-      this.$emit('onSubmit', newUser)
-      this.valid = true
       this.name = ''
-      this.password = ''
-    },
-    async finishReg () {
-
+      this.valid = true
+      this.$emit('onSubmit', newUser)
     }
   },
   mounted () {

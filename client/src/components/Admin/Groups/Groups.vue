@@ -47,7 +47,7 @@ export default {
       this.confirmDeleteDialog = true
     },
     async deleteGroupConfirm () {
-      await this.$http('delete', '/api/groups/' + this.deletedGroup.id)
+      await this.$http('delete', '/api/group/' + this.deletedGroup.id)
       this.groups.splice(this.groups.indexOf(this.deletedGroup), 1)
     },
     onSubmit (group) {
@@ -56,7 +56,7 @@ export default {
     }
   },
   async mounted () {
-    this.groups = await this.$http('get', '/api/groups')
+    this.groups = await this.$http('get', '/api/group')
   },
   components: {
     AddGroup,

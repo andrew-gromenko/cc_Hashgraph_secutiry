@@ -10,8 +10,9 @@ const smartContract = require('../utils/contract-calls')
 
 var filesDir = 'files/'
 var upload = multer({ dest: filesDir })
+const fs = require('fs')
 
-router.post('/files', checkAdmin, upload.single('encryptedData'), async (req, res) => {
+router.post('/', checkAdmin, upload.single('encryptedData'), async (req, res) => {
   const { name, type, groupId } = req.body
   const { filename } = req.file
   const { addPermission, hasPermission } = await smartContract
@@ -45,7 +46,7 @@ router.post('/files', checkAdmin, upload.single('encryptedData'), async (req, re
 // CREATE
 
 // GET
-router.get('/files', checkAdmin, async (req, res) => {
+router.get('/', checkAdmin, async (req, res) => {
   const { substr } = req.query
   // check if this is admin
   let find = {}
@@ -63,12 +64,33 @@ router.get('/files', checkAdmin, async (req, res) => {
   res.json(filesWithGroup)
 })
 
-router.get('/files/:id', checkAdmin, async (req, res) => {
+router.get('/:id', checkAdmin, async (req, res) => {
   const { id } = req.params
   // check if this is admin
   const file = await File.findById(id)
   const group = await Group.findById(file.groupId)
   res.json({...file.toJSON(), group})
+})
+
+router.delete('/files/:id', checkAdmin, async (req, res) => {
+  const { id } = req.params
+  const { removePermission, hasPermission } = await smartContract
+
+  const removedFile = await File.findByIdAndRemove(id)
+  await fs.unlink(`${__dirname}/../${filesDir}${removedFile.filename}`)
+  const { userIds: users } = await Group.findById(removedFile.groupId).select('userIds').populate('userIds')
+  console.log(users)
+  await users.map(async u => {
+    console.log('HERERERER')
+    const a = await hasPermission(u.address, removedFile.filename)
+    const b = await removePermission(u.address, removedFile.filename)
+    const c = await hasPermission(u.address, removedFile.filename)
+    console.log(a, b, c)
+    return b
+  })
+  console.log('Removed File: ', removedFile)
+
+  res.status(200).json({})
 })
 
 router.get('/download/:id', async (req, res) => {

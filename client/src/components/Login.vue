@@ -5,6 +5,7 @@ v-layout
             v-card-title(primary-title)
                 h3.headline.mb-0 Login
             v-form.mx-3(v-model='valid', lazy-validation)
+                v-checkbox(label='2 factor auth enabled?' v-model="checkbox")
                 v-text-field(
                   prepend-icon='account_box',
                   label='Name',
@@ -12,15 +13,15 @@ v-layout
                   :rules='nameRules',
                   required
                   )
+                .password-frame.login(ref="frame")
+                  v-icon.pw1 vpn_key
                 v-text-field(
                   prepend-icon='lock',
                   label='Code',
                   v-model='token',
                   :rules='tokenRules',
-                  required
+                  v-if="checkbox"
                   )
-                .password-frame.login(ref="frame")
-                  v-icon.pw1 vpn_key
                 v-card-actions.text-md-right
                     v-btn(flat, @click='submit', :disabled='!valid')
                         | Submit
@@ -34,6 +35,7 @@ export default {
     return {
       valid: false,
       name: '',
+      checkbox: false,
       nameRules: [
         v => !!v || 'Name is required',
         v => v.length <= 30 || 'Name must be less than 20 characters',
@@ -50,8 +52,10 @@ export default {
   methods: {
     async submit () {
       const userId = await this.$auth.login(this.zkitLogin, this.name, this.token)
+      console.log(userId)
 
       if (userId != null) {
+        console.log(userId)
         this.$router.push('/')
       }
     }

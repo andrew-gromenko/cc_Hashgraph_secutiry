@@ -31,7 +31,12 @@ const User = new Schema({
     type: String,
     unique: true
   },
-  secret: String
+  secret: String,
+  qr: String,
+  twoFactorAuth: {
+    type: Boolean,
+    default: false
+  }
 }, {
   toJSON: {
     transform (doc, ret, options) {

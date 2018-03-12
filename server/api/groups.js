@@ -9,7 +9,7 @@ const checkAdmin = require('../utils/adminCheck')
 const smartContract = require('../utils/contract-calls')
 
 // CREATE
-router.post('/groups', checkAdmin, async (req, res) => {
+router.post('/', checkAdmin, async (req, res) => {
   const { name, tresorId } = req.body
 
   if (!name || typeof name !== 'string') {
@@ -28,14 +28,14 @@ router.post('/groups', checkAdmin, async (req, res) => {
   }
 })
 
-router.get('/groups/:id', checkAdmin, async (req, res) => {
+router.get('/:id', checkAdmin, async (req, res) => {
   const { id } = req.params
 
   const group = await Group.findById(id)
   res.json(group)
 })
 
-router.get('/groups', async (req, res) => {
+router.get('/', async (req, res) => {
   const { userId } = req.query
   let find = {}
   if (userId) {
@@ -51,31 +51,10 @@ router.get('/groups', async (req, res) => {
   res.json(groupFiles)
 })
 
-router.delete('/files/:id', checkAdmin, async (req, res) => {
-  const { id } = req.params
-  const { removePermission, hasPermission } = await smartContract
-
-  const removedFile = await File.findByIdAndRemove(id)
-  await fs.unlink(`${__dirname}/../${filesDir}${removedFile.filename}`)
-  const { userIds: users } = await Group.findById(removedFile.groupId).select('userIds').populate('userIds')
-  console.log(users)
-  await users.map(async u => {
-    console.log('HERERERER')
-    const a = await hasPermission(u.address, removedFile.filename)
-    const b = await removePermission(u.address, removedFile.filename)
-    const c = await hasPermission(u.address, removedFile.filename)
-    console.log(a, b, c)
-    return b
-  })
-  console.log('Removed File: ', removedFile)
-
-  res.status(200).json({})
-})
-
 // GET
 
 // // UPDATE GROUP - add fileId or userId to a group
-router.patch('/groups/:groupId', checkAdmin, async (req, res) => {
+router.patch('/:groupId', checkAdmin, async (req, res) => {
   const { userId, operationId } = req.body
   const { groupId } = req.params
   const { addPermission, hasPermission } = await smartContract
@@ -102,7 +81,7 @@ router.patch('/groups/:groupId', checkAdmin, async (req, res) => {
   }
 })
 
-router.delete('/groups/:groupId', checkAdmin, async (req, res) => {
+router.delete('/:groupId', checkAdmin, async (req, res) => {
   const { userId, operationId } = req.body
   const { groupId } = req.params
   const { removePermission, hasPermission } = await smartContract

@@ -36,7 +36,7 @@ export default {
       this.confirmDeleteDialog = true
     },
     async deleteUserConfirm () {
-      await this.$http('delete', '/api/users/' + this.deletedUser.id)
+      await this.$http('delete', '/api/user/' + this.deletedUser.id)
       this.users.splice(this.users.indexOf(this.deletedUser), 1)
     },
     onSubmit (user) {
@@ -45,7 +45,7 @@ export default {
     }
   },
   async mounted () {
-    this.users = await this.$http('get', '/api/users')
+    this.users = await this.$http('get', '/api/user')
   },
   components: {
     AddUser,

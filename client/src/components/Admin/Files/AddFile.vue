@@ -100,8 +100,8 @@ export default {
       fd.append('type', this.file.type)
       fd.append('groupId', this.group.id)
 
-      const id = await this.$http('post', '/api/files', fd)
-      const file = await this.$http('get', `/api/files/${id}`)
+      const id = await this.$http('post', '/api/file', fd)
+      const file = await this.$http('get', `/api/file/${id}`)
 
       this.$emit('onSubmit', file)
       this.valid = true
@@ -110,7 +110,7 @@ export default {
     },
     async querySelections (query) {
       this.loading = true
-      this.searchItems = await this.$http('get', `/api/groups?substr=${query}`)
+      this.searchItems = await this.$http('get', `/api/group?substr=${query}`)
       this.loading = false
     }
   },

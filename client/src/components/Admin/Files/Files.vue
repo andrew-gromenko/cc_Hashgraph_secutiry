@@ -37,7 +37,7 @@ export default {
       this.confirmDeleteDialog = true
     },
     async deleteFileConfirm () {
-      await this.$http('delete', '/api/files/' + this.deletedFile.id)
+      await this.$http('delete', '/api/file/' + this.deletedFile.id)
       this.files.splice(this.files.indexOf(this.deletedFile), 1)
     },
     onSubmit (file) {
@@ -46,7 +46,7 @@ export default {
     }
   },
   async mounted () {
-    this.files = await this.$http('get', '/api/files')
+    this.files = await this.$http('get', '/api/file')
   },
   components: {
     AddFile,
