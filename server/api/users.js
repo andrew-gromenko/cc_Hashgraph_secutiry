@@ -28,16 +28,15 @@ router.get('/admin', async (req, res) => {
   const { getAdmin } = await smartContract
   const adminAddress = await getAdmin()
   const { zkitId } = req.query
-  console.log(zkitId)
+  console.log(zkitId, typeof zkitId)
 
   if (zkitId) {
-    console.log('ZKITID')
-    const a = await User.findOne({ zkitId })
-    console.log(a)
-    return res.json({ admin: a.address === adminAddress })
+    const user = await User.findOne({ zkitId })
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid request' })
+    }
+    return res.json(user.address === adminAddress)
   }
-  const users = await User.find()
-  console.log(users)
   const admin = await User.findOne({ address: adminAddress })
   return res.json({ admin })
 })
@@ -62,24 +61,34 @@ router.get('/', checkAdmin, async (req, res) => {
 router.get('/get-by-zkit', checkAdmin, async (req, res) => {
   const { zkitId } = req.query
   if (!zkitId) {
-    res.status(400).json({ message: 'You should provide zkitId' })
+    return res.status(400).json({ message: 'You should provide zkitId' })
   }
   console.log(zkitId)
   const user = await User.findOne({ zkitId })
   res.json(user)
 })
 
-router.post('/enable-2factor-auth', async (req, res) => {
+router.get('/2factor-auth', async (req, res) => {
+  const { username } = req.query
+  const user = await User.findOne({ username })
+  if (!user) {
+    return res.status(400).json({ message: 'Invalid request' })
+  }
+  res.json(user.twoFactorAuth)
+})
+
+router.post('/2factor-auth', async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ message: 'You should be authenticated to access thsi route' })
   }
-  await User.findByIdAndUpdate(req.user.id, { twoFactorAuth: true })
+  console.log(req.user.twoFactorAuth)
+  await User.findByIdAndUpdate(req.user.id, { twoFactorAuth: !req.user.twoFactorAuth })
   res.json({})
 })
 
 router.get('/me', async (req, res, next) => {
   if (!req.isAuthenticated()) {
-    res.status(401).json({ message: 'Not authenticated' })
+    return res.status(401).json({ message: 'Not authenticated' })
   }
   const user = await User.findById(req.user.id)
   res.json(user)

@@ -95,19 +95,18 @@ router.delete('/files/:id', checkAdmin, async (req, res) => {
 
 router.get('/download/:id', async (req, res) => {
   const { id } = req.params
-  const zkitId = req.get('ZkitID-Auth')
   const { hasPermission } = await smartContract
-
-  if (!zkitId) {
-    return res.status(400).json({ message: 'You should provide zkitId' })
+  console.log('HHHHHHHHHHHHHHHHHHHHHHHHHHH')
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: 'Not authenticated' })
   }
-
   const file = await File.findById(id)
+  const files = await File.find()
+  console.log(file, files)
   if (!file) {
     return res.status(404).json({ message: 'File not found' })
   }
-
-  const user = await User.findOne({ zkitId })
+  const user = await User.findOne({ zkitId: req.user.zkitId })
   const possession = await hasPermission(user.address, file.filename)
 
   if (!possession) {

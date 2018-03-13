@@ -1,4 +1,3 @@
-// process.env.GETH_URL = 'geth'
 const path = require('path')
 const fs = require('fs')
 

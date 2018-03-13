@@ -8,7 +8,8 @@ const idpLogin = (token, name, cb) => new Promise((resolve, reject) => {
   iframe.style.display = 'none'
   document.body.appendChild(iframe)
 
-  iframe.addEventListener('load', () => {
+  iframe.addEventListener('load', (...args) => {
+    console.log('ARGS: ', ...args)
     let iframeLocation
     try {
       iframeLocation = iframe.contentWindow.location
@@ -37,8 +38,12 @@ export default {
         console.log(token)
         try {
           const zkitId = await $http('get', `/api/user/get-user-id?userName=${name}`)
+          const twoFactorAuth = await $http('get', `/api/user/2factor-auth?username=${name}`)
           if (!zkitId) {
             throw new Error('There is no such user')
+          }
+          if (twoFactorAuth && !token) {
+            throw new Error('You have two factor auth enabled, so enter a valid token')
           }
           console.log('here')
           await zkitLogin.login(zkitId)
@@ -48,12 +53,14 @@ export default {
           console.log('User: ', user, admin)
           return user.zkitId
         } catch (e) {
+          console.log('ERROR: ', e)
           $eventBus.$emit('notify', e.description || e.message)
         }
       },
       async logout () {
         await zkitSdk.logout()
         user = null
+        admin = false
       },
       get isAuth () {
         return Boolean(user)
@@ -62,8 +69,17 @@ export default {
         const zkitId = await zkitSdk.whoAmI()
         if (zkitId) {
           if (!user) {
-            user = await $http('get', `/api/user/me`)
-            admin = await $http('get', `/api/user/admin?zkitId=${user.zkitId}`)
+            try {
+              user = await $http('get', `/api/user/me`)
+              console.log('USER', user)
+              admin = await $http('get', `/api/user/admin?zkitId=${user.zkitId}`)
+              console.log('USER', admin)
+            } catch (e) {
+              await zkitSdk.logout()
+              user = null
+              admin = false
+              console.log('HERE')
+            }
           }
           return true
         } else {

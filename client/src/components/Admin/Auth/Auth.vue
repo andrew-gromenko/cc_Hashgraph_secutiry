@@ -16,8 +16,8 @@ export default {
   },
   methods: {
     enableTwoFactorAuth () {
-      this.$http('post', 'http://localhost:3000/api/user/enable-2factor-auth')
-      this.twoFactorAuth = false
+      this.$http('post', 'http://localhost:3000/api/user/2factor-auth')
+      this.twoFactorAuth = !this.twoFactorAuth
     }
   },
   async mounted () {

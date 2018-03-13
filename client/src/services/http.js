@@ -24,8 +24,8 @@ export default {
         const json = await res.json()
 
         if (!res.ok) {
-          $eventBus.$emit(
-            'notify',
+          console.log('Here')
+          throw new Error(
             !json.message ? res.status + ': ' + res.statusText : json.message
           )
         }
@@ -34,7 +34,7 @@ export default {
       } catch (e) {
         $eventBus.$emit('notify', res.status + ': ' + res.statusText)
         console.error('Http error', e)
-        return null
+        throw e
       }
     }
   }

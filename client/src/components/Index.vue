@@ -25,12 +25,9 @@ export default {
       return m2e.extension(file.type)
     },
     async download (file) {
-      const headers = {}
-      const zkitId = await zkitSDK.whoAmI()
-      headers['ZkitID-Auth'] = zkitId
-      const res = await fetch('/api/download/' + file.id, {
-        headers,
-        method: 'GET'
+      const res = await fetch('http://localhost:3000/api/file/download/' + file.id, {
+        method: 'GET',
+        credentials: 'include'
       })
       if (!res.ok) {
         const { message } = await res.json()

@@ -31,13 +31,13 @@ export default {
       valid: true,
       nameRules: UserRules.name,
       passwordRules: UserRules.password,
-      zkitReg: null,
+      zkitReg: null
     }
   },
   methods: {
     async submit () {
       const {userId, regSessionId} = await this.$http('post', 'http://localhost:3000/api/user/init-user-registration', {
-        username: this.name,
+        username: this.name
       })
       if (!userId || !regSessionId) {
         return
@@ -46,7 +46,7 @@ export default {
       const regResponse = await this.zkitReg.register(userId, regSessionId)
       const newUser = await this.$http('post', 'http://localhost:3000/api/user/finish-user-registration', {
         userId,
-        validationVerifier: regResponse.RegValidationVerifier,
+        validationVerifier: regResponse.RegValidationVerifier
       })
 
       this.name = ''

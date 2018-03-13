@@ -33,7 +33,7 @@ authApi.get('/login', async (req, res, next) => {
   const user = await User.findOne({ username })
   if (user.twoFactorAuth) {
     if (!token) {
-      return res.status(400).json({ message: 'You should provide a token' })
+      return res.status(400).json({ message: 'You have two factor auth enabled so provide a token' })
     }
 
     const verify = twoFactor.verifyToken(user.secret, token)
