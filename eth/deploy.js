@@ -27,13 +27,13 @@ waitPort(params)
       data: '0x' + data,
       arguments: [account]
     })
-    .send({
-      from: account,
-      gas: 2000000,
-      gasPrice: '20000000000'
-    })
-    .then(newContractInstance => {
-      console.log('ADRESS DEP', newContractInstance.options.address)
-      fs.writeFileSync(path.resolve(__dirname, 'data', '.addressrc'), newContractInstance.options.address)
-    })
+      .send({
+        from: account,
+        gas: 2000000,
+        gasPrice: '20000000000'
+      })
+      .then(newContractInstance => {
+        console.log('ADRESS DEP', newContractInstance.options.address)
+        fs.writeFileSync(path.resolve(__dirname, 'data', '.addressrc'), newContractInstance.options.address)
+      })
   })

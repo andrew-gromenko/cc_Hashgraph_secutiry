@@ -18,7 +18,7 @@ services:
     depends_on:
       - geth
     volumes:
-        - data:/root/app/eth/data
+      - data:/root/app/eth/data
   
   client:
     build:
@@ -30,6 +30,7 @@ services:
     volumes:
       - ./client:/root/app/client
       - /root/app/client/node_modules
+      - dist:/root/app/client/dist
 
   server:
     build: 
@@ -46,8 +47,9 @@ services:
       - .env
     volumes:
       - data:/root/app/server/data
-      - ./client/dist:/root/app/server/public
+      - dist:/root/app/server/public
 
 volumes:
   geth:
   data:
+  dist:

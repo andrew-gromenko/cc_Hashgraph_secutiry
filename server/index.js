@@ -19,7 +19,7 @@ var morgan = require('morgan')
 const fs = require('fs')
 const path = require('path')
 
-const port = process.env.PORT
+const port = process.env.SERVER_PORT
 
 const helmet = require('helmet')
 

@@ -1,5 +1,7 @@
 abi
 bin
+dist
+server/public
 .adminrc
 .addressrc
 .env*
