@@ -50,7 +50,6 @@ services:
       - ./server:/root/app/server
       - /root/app/server/node_modules
       - data:/root/app/server/data
-      - ./client/dist:/root/app/server/public
 
 
 

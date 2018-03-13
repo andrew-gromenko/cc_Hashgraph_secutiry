@@ -28,7 +28,7 @@ const idpLogin = (token, name, cb) => new Promise((resolve, reject) => {
     }
   })
 
-  iframe.src = `http://localhost:3000/api/auth/login?reto=${encodeURIComponent(location.href)}&token=${token}&username=${name}`
+  iframe.src = `/api/auth/login?reto=${encodeURIComponent(location.href)}&token=${token}&username=${name}`
 })
 
 export default {
