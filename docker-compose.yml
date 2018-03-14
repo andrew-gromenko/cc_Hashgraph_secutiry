@@ -30,7 +30,6 @@ services:
     volumes:
       - ./client:/root/app/client
       - /root/app/client/node_modules
-      - dist:/root/app/client/dist
 
   server:
     build: 
@@ -47,7 +46,7 @@ services:
       - .env
     volumes:
       - data:/root/app/server/data
-      - dist:/root/app/server/public
+      - ./client/dist:/root/app/server/public
 
 volumes:
   geth:

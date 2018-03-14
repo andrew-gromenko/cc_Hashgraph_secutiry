@@ -6,7 +6,6 @@ v-layout.layout(fill-height)
       v-tab(href="#groups") Group
       v-tab(href="#files") Files
       v-tab(href="#users") Users
-      v-tab(href="#settings") Settings
   v-tabs-items.tab_items(v-model="tab")
     v-tab-item.tab_item(id="groups")
       groups
@@ -14,8 +13,6 @@ v-layout.layout(fill-height)
       files
     v-tab-item.tab_item(id="users")
       users
-    v-tab-item.tab_item(id="settings")
-      auth
 
 </template>
 
@@ -23,7 +20,6 @@ v-layout.layout(fill-height)
 import Groups from './Groups/Groups.vue'
 import Files from './Files/Files.vue'
 import Users from './Users/Users.vue'
-import Auth from './Auth/Auth.vue'
 
 export default {
   data () {
@@ -34,8 +30,7 @@ export default {
   components: {
     Groups,
     Files,
-    Users,
-    Auth
+    Users
   }
 }
 </script>

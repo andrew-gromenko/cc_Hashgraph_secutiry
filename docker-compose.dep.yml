@@ -1,0 +1,25 @@
+version: '3.2'
+services:
+  geth:
+    image: ethereum/client-go
+    entrypoint: geth
+    command: --dev --rpc --rpcaddr "0.0.0.0" --rpccorsdomain "*" --rpcvhosts "*" --rpcport 8545 --networkid 1324231
+    volumes:
+      - type: volume
+        source: geth 
+        target: /root/.ethereum
+
+  eth:
+    build: 
+      context: .
+      dockerfile: Dockerfile-eth
+    env_file:
+      - ${ENV_FILE}
+    depends_on:
+      - geth
+    volumes:
+        - data:/root/app/eth/data
+
+volumes:
+  data:
+  geth:

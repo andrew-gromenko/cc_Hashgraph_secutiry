@@ -23,8 +23,6 @@ export default {
   async mounted () {
     this.qr = this.$auth.getUser().qr
     this.twoFactorAuth = this.$auth.getUser().twoFactorAuth
-    console.log(this.twoFactorAuth)
-    console.log(this.qr)
   },
   components: {
   }

@@ -8,17 +8,6 @@ services:
       - type: volume
         source: geth 
         target: /root/.ethereum
-
-  eth:
-    build: 
-      context: .
-      dockerfile: Dockerfile-eth
-    env_file:
-      - .env.dev
-    depends_on:
-      - geth
-    volumes:
-        - data:/root/app/eth/data
   
   client:
     build:
@@ -40,16 +29,15 @@ services:
     command: npm run dev
     depends_on:
       - geth
-      - eth
       - client
     env_file:
       - .env.dev
+    ports:
+      - 3000:3000
     volumes:
       - ./server:/root/app/server
       - /root/app/server/node_modules
       - data:/root/app/server/data
-
-
 
 volumes:
   geth:

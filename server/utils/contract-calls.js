@@ -18,13 +18,17 @@ const main = async () => {
       // console.log('waiting for .address file')
     }
   }
-  console.log('ABI, ADRESS: ', address)
+  console.log('CONTRACT ADDRESS: ', address)
   const [account] = await web3.eth.getAccounts()
+  console.log(account)
   const myContract = new web3.eth.Contract(abi, address, {
     from: account,
     gasPrice: '20000000000', // default gas price in wei, 20 gwei in this case
     gas: 2000000
   })
+  // myContract.methods.owner().call().then(console.log).catch(console.error)
+  // console.log('CALL', myContract.methods.owner().call())
+  // console.log(myContract, abi)
   const addPermission = (addr, str) => myContract.methods.adminAddPermission(addr, web3.utils.utf8ToHex(str)).send()
   const removePermission = (addr, str) => myContract.methods.adminRemovePermission(addr, web3.utils.utf8ToHex(str)).send()
   const hasPermission = (addr, str) => myContract.methods.hasPermission(addr, web3.utils.utf8ToHex(str)).call()
@@ -51,10 +55,13 @@ module.exports = main()
 .catch(console.error)
 // .then(async ({ addPermission, hasPermission, getAdmin, getPermissions }) => {
 //   const newUserAcc = web3.eth.accounts.create()
-//   console.log(newUserAcc)
-//   const a = await addPermission(newUserAcc.address,'file2.txt')
+//   console.log('TEST USER ADDRESS: ', newUserAcc)
 //   const g = await getAdmin()
+//   console.log('ADMIN: ', g)
+//   const a = await addPermission(newUserAcc.address, 'file2.txt')
+//   console.log('SHOULD BE TX INFO(added permission method worked AND CHANGED THE STATE):\n', a)
 //   const b = await hasPermission(newUserAcc.address, 'file2.txt')
+//   console.log('SHOULD BE TRUE(check for permission user have):', b)
 //   const c = await hasPermission(newUserAcc.address, 'file.txt')
-//   console.log(a, b, c, g)
+//   console.log('SHOULD BE FALSE(check for permission user doesn\'t have):', c)
 // })

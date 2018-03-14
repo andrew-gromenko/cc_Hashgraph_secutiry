@@ -7,7 +7,6 @@ const adminCheck = async (req, res, next) => {
   }
   const { getAdmin } = await smartContract
   const admin = await getAdmin()
-  console.log('HEEEEEEEEEEEEEEEEEEEEEEER: ', req.user, req.session)
   const { zkitId } = req.user
   const requestOriginator = await User.findOne({ zkitId })
   if (requestOriginator.address !== admin) {

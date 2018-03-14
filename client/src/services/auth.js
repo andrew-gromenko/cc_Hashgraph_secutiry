@@ -8,8 +8,7 @@ const idpLogin = (token, name, cb) => new Promise((resolve, reject) => {
   iframe.style.display = 'none'
   document.body.appendChild(iframe)
 
-  iframe.addEventListener('load', (...args) => {
-    console.log('ARGS: ', ...args)
+  iframe.addEventListener('load', () => {
     let iframeLocation
     try {
       iframeLocation = iframe.contentWindow.location
@@ -28,14 +27,13 @@ const idpLogin = (token, name, cb) => new Promise((resolve, reject) => {
     }
   })
 
-  iframe.src = `/api/auth/login?reto=${encodeURIComponent(location.href)}&token=${token}&username=${name}`
+  iframe.src = `${location.href.includes('localhost') ? 'http://localhost:3000' : ''}/api/auth/login?reto=${encodeURIComponent(location.href)}&token=${token}&username=${name}`
 })
 
 export default {
   install (Vue, { $http, $eventBus }) {
     Vue.prototype.$auth = {
       async login (zkitLogin, name, token) {
-        console.log(token)
         try {
           const zkitId = await $http('get', `/api/user/get-user-id?userName=${name}`)
           const twoFactorAuth = await $http('get', `/api/user/2factor-auth?username=${name}`)
@@ -45,15 +43,12 @@ export default {
           if (twoFactorAuth && !token) {
             throw new Error('You have two factor auth enabled, so enter a valid token')
           }
-          console.log('here')
           await zkitLogin.login(zkitId)
           await idpLogin(token, name)
           user = await $http('get', `/api/user/me`)
           admin = await $http('get', `/api/user/admin?zkitId=${user.zkitId}`)
-          console.log('User: ', user, admin)
           return user.zkitId
         } catch (e) {
-          console.log('ERROR: ', e)
           $eventBus.$emit('notify', e.description || e.message)
         }
       },
@@ -71,14 +66,11 @@ export default {
           if (!user) {
             try {
               user = await $http('get', `/api/user/me`)
-              console.log('USER', user)
               admin = await $http('get', `/api/user/admin?zkitId=${user.zkitId}`)
-              console.log('USER', admin)
             } catch (e) {
               await zkitSdk.logout()
               user = null
               admin = false
-              console.log('HERE')
             }
           }
           return true

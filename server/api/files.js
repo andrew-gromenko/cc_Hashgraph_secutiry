@@ -31,24 +31,15 @@ router.post('/', checkAdmin, upload.single('encryptedData'), async (req, res) =>
     const newFile = await File.create({ name, type, filename, groupId })
     const { userIds } = await Group.findById(groupId).select('userIds')
     const addresses = await User.find({ _id: userIds }).select('address')
-    await addresses.map(async ({ address: a }) => {
-      const perm = await addPermission(a, filename)
-      const hasPerm = await hasPermission(a, filename)
-      console.log('hasPerm, upload: ', hasPerm)
-      return perm
-    })
-    console.log(userIds, addresses)
+    await addresses.map(async ({ address: a }) => await addPermission(a, filename))
     res.json(newFile.id)
   } catch (err) {
     res.status(400).json({ message: err.message })
   }
 })
-// CREATE
 
-// GET
 router.get('/', checkAdmin, async (req, res) => {
   const { substr } = req.query
-  // check if this is admin
   let find = {}
   if (substr) {
     find = { name: { $regex: req.query.substr, $options: 'i' } }
@@ -66,7 +57,6 @@ router.get('/', checkAdmin, async (req, res) => {
 
 router.get('/:id', checkAdmin, async (req, res) => {
   const { id } = req.params
-  // check if this is admin
   const file = await File.findById(id)
   const group = await Group.findById(file.groupId)
   res.json({...file.toJSON(), group})
@@ -79,16 +69,7 @@ router.delete('/files/:id', checkAdmin, async (req, res) => {
   const removedFile = await File.findByIdAndRemove(id)
   await fs.unlink(`${__dirname}/../${filesDir}${removedFile.filename}`)
   const { userIds: users } = await Group.findById(removedFile.groupId).select('userIds').populate('userIds')
-  console.log(users)
-  await users.map(async u => {
-    console.log('HERERERER')
-    const a = await hasPermission(u.address, removedFile.filename)
-    const b = await removePermission(u.address, removedFile.filename)
-    const c = await hasPermission(u.address, removedFile.filename)
-    console.log(a, b, c)
-    return b
-  })
-  console.log('Removed File: ', removedFile)
+  await users.map(async u => await removePermission(u.address, removedFile.filename))
 
   res.status(200).json({})
 })
@@ -96,13 +77,11 @@ router.delete('/files/:id', checkAdmin, async (req, res) => {
 router.get('/download/:id', async (req, res) => {
   const { id } = req.params
   const { hasPermission } = await smartContract
-  console.log('HHHHHHHHHHHHHHHHHHHHHHHHHHH')
   if (!req.isAuthenticated()) {
     return res.status(401).json({ message: 'Not authenticated' })
   }
   const file = await File.findById(id)
   const files = await File.find()
-  console.log(file, files)
   if (!file) {
     return res.status(404).json({ message: 'File not found' })
   }

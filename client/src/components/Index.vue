@@ -45,7 +45,7 @@ export default {
     }
   },
   async mounted () {
-    this.groups = await this.$http('get', `/api/group?userId=${this.$auth.getUser().id}`)
+    this.groups = await this.$http('get', `/api/group/me`)
   }
 }
 </script>

@@ -24,12 +24,9 @@ const port = process.env.SERVER_PORT
 const helmet = require('helmet')
 
 app.use(cors({ origin: config.appOrigins, credentials: true }))
-// app.use(helmet())
-// app.use(helmet.noCache())
-// app.use(helmet.referrerPolicy({ policy: 'no-referrer' }))
-// app.use(helmet({
-//   frameguard: false
-// }))
+app.use(helmet())
+app.use(helmet.noCache())
+app.use(helmet.referrerPolicy({ policy: 'no-referrer' }))
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Index from './components/Index.vue'
 import Login from './components/Login.vue'
+import Auth from './components/Auth.vue'
 import Admin from './components/Admin/Admin.vue'
 import RegisterAdmin from './components/RegisterAdmin.vue'
 import NotFound from './components/NotFound.vue'
@@ -14,6 +15,12 @@ var router = new Router({
       path: '/',
       name: 'index',
       component: Index,
+      meta: { requiresAuth: true, requiresAdmin: false }
+    },
+    {
+      path: '/auth',
+      name: 'auth',
+      component: Auth,
       meta: { requiresAuth: true }
     },
     {
@@ -43,7 +50,7 @@ var router = new Router({
 router.beforeEach(async (to, from, next) => {
   var auth = router.app.$auth
   await auth.Authenticate()
-  console.log(auth.isAdmin(), auth.isAuth)
+  console.log('TO: ', to, 'IS ADMIN: ', auth.isAdmin(), 'IS AUTH: ', auth.isAuth, 'REQUIRES AUTH: ', to.meta.requiresAuth, 'REQUIRES ADMID: ', to.meta.requiresAdmin)
 
   if (to.meta.requiresAdmin && !auth.isAdmin()) {
     next({
@@ -63,7 +70,7 @@ router.beforeEach(async (to, from, next) => {
     next({
       name: 'index'
     })
-  } else if (!to.meta.requiresAdmin && auth.isAdmin()) {
+  } else if (to.meta.requiresAdmin !== undefined && !to.meta.requiresAdmin && auth.isAdmin()) {
     next({
       name: 'admin'
     })

@@ -8,7 +8,6 @@ const adminApi = require('./admin')
 const checkAdmin = require('../utils/adminCheck')
 const smartContract = require('../utils/contract-calls')
 
-// CREATE
 router.post('/', checkAdmin, async (req, res) => {
   const { name, tresorId } = req.body
 
@@ -28,32 +27,66 @@ router.post('/', checkAdmin, async (req, res) => {
   }
 })
 
-router.get('/:id', checkAdmin, async (req, res) => {
+router.get('/:id', async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: 'Not authenticated' })
+  }
   const { id } = req.params
+  if (id !== 'me') {
+    const { getAdmin } = await smartContract
+    const admin = await getAdmin()
+    const { zkitId } = req.user
+    const requestOriginator = await User.findOne({ zkitId })
+    if (requestOriginator.address !== admin) {
+      return res.status(403).json({ message: 'Only admin have privileges for this route' })
+    }
+  }
+  if (id === 'me') {
+    const userGroups = await Group.find({ userIds: req.user.id })
 
-  const group = await Group.findById(id)
-  res.json(group)
+    const userGroupsWithFiles = await Promise.all(userGroups.map(async g => {
+      let files = await File.find({ groupId: g.id })
+      return {...g.toJSON(), files}
+    }))
+
+    res.json(userGroupsWithFiles)
+  } else {
+    const group = await Group.findById(id)
+    res.json(group)
+  }
 })
 
-router.get('/', async (req, res) => {
+router.get('/me', async (req, res) => {
+  console.log('me route');
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: 'Not authorized' })
+  }
+  const userGroups = await Group.find({ userIds: req.user.id })
+
+  const userGroupsWithFiles = await Promise.all(userGroups.map(async g => {
+    let files = await File.find({ groupId: g.id })
+    return {...g.toJSON(), files}
+  }))
+
+  res.json(userGroupsWithFiles)
+})
+
+router.get('/', checkAdmin, async (req, res) => {
   const { userId } = req.query
   let find = {}
   if (userId) {
     find['userIds'] = userId
   }
 
-  const groups = await Group.find(find)
+  const userGroups = await Group.find(find)
 
-  const groupFiles = await Promise.all(groups.map(async g => {
+  const userGroupsWithFiles = await Promise.all(userGroups.map(async g => {
     let files = await File.find({ groupId: g.id })
     return {...g.toJSON(), files}
   }))
-  res.json(groupFiles)
+  res.json(userGroupsWithFiles)
 })
 
-// GET
-
-// // UPDATE GROUP - add fileId or userId to a group
 router.patch('/:groupId', checkAdmin, async (req, res) => {
   const { userId, operationId } = req.body
   const { groupId } = req.params
@@ -71,12 +104,7 @@ router.patch('/:groupId', checkAdmin, async (req, res) => {
     await adminApi.approveShare(operationId)
     await Group.findByIdAndUpdate(groupId, { $addToSet: { userIds: userId } }, { new: true })
     const files = await File.find({ groupId })
-    await files.map(async f => {
-      const perm = await addPermission(user.address, f.filename)
-      const hasPerm = await hasPermission(user.address, f.filename)
-      console.log('hasPerm, groupChange: ', hasPerm)
-      return perm
-    })
+    await files.map(async f => await addPermission(user.address, f.filename))
     res.json(user)
   }
 })
@@ -98,14 +126,7 @@ router.delete('/:groupId', checkAdmin, async (req, res) => {
     await adminApi.approveKick(operationId)
     const up = await Group.findByIdAndUpdate(groupId, { $pull: { userIds: userId } }, { new: true })
     const files = await File.find({ groupId })
-    await files.map(async f => {
-      const before = await hasPermission(user.address, f.filename)
-      const rem = await removePermission(user.address, f.filename)
-      const after = await hasPermission(user.address, f.filename)
-      console.log(before, rem, after)
-      return rem
-    })
-    console.log('Files: ', files)
+    await files.map(async f => await removePermission(user.address, f.filename))
     return res.json(up)
   }
 
@@ -114,16 +135,7 @@ router.delete('/:groupId', checkAdmin, async (req, res) => {
   await Group.findByIdAndRemove(groupId)
   const files = await File.find({ groupId })
   await File.deleteMany({ groupId })
-  console.log('queryRes', queryRes)
-  await files.map(async f => {
-    await users.map(async u => {
-      const before = await hasPermission(u.address, f.filename)
-      const rem = await removePermission(u.address, f.filename)
-      const after = await hasPermission(u.address, f.filename)
-      console.log('Group deletion', before, rem, after)
-    })
-  })
-  console.log(files)
+  await files.map(async f => await users.map(async u => await removePermission(u.address, f.filename)))
   return res.status(200).json({})
 })
 

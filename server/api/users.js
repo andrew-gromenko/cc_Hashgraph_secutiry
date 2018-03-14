@@ -20,7 +20,6 @@ router.get('/get-user-id', async (req, res) => {
   if (!user) {
     return res.status(400).json({ message: 'No such user' })
   }
-  console.log(user.zkitId)
   res.json(user.zkitId)
 })
 
@@ -28,7 +27,6 @@ router.get('/admin', async (req, res) => {
   const { getAdmin } = await smartContract
   const adminAddress = await getAdmin()
   const { zkitId } = req.query
-  console.log(zkitId, typeof zkitId)
 
   if (zkitId) {
     const user = await User.findOne({ zkitId })
@@ -43,7 +41,6 @@ router.get('/admin', async (req, res) => {
 
 router.get('/count', async (req, res) => {
   const count = await User.count({})
-  console.log('count', count)
 
   res.json({ count })
 })
@@ -63,7 +60,6 @@ router.get('/get-by-zkit', checkAdmin, async (req, res) => {
   if (!zkitId) {
     return res.status(400).json({ message: 'You should provide zkitId' })
   }
-  console.log(zkitId)
   const user = await User.findOne({ zkitId })
   res.json(user)
 })
@@ -81,7 +77,6 @@ router.post('/2factor-auth', async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ message: 'You should be authenticated to access thsi route' })
   }
-  console.log(req.user.twoFactorAuth)
   await User.findByIdAndUpdate(req.user.id, { twoFactorAuth: !req.user.twoFactorAuth })
   res.json({})
 })
@@ -199,7 +194,6 @@ router.post('/finish-user-registration', async (req, res) => {
   try {
     await adminApi.validateUser(user.zkitId, sessionId, sessionVerifier, validationVerifier)
   } catch (e) {
-    console.log(e)
     return res.status(400).json({ message: e.message })
   }
   res.json({id: user.id, username: user.username, qrCode: secretData.qr, user})

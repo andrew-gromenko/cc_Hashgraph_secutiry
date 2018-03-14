@@ -30,13 +30,19 @@ export default {
         {
           title: 'Home',
           route: '/',
-          icon: 'home'
+          icon: 'home',
+          admin: false
+        },
+        {
+          title: 'Settings',
+          route: 'auth',
+          icon: 'settings'
         },
         {
           title: 'Admin panel',
           route: 'admin',
           icon: 'dashboard',
-          role: 'admin'
+          admin: true
         }
       ]
     }
@@ -51,7 +57,13 @@ export default {
   },
   methods: {
     isShown (item) {
-      return item.role !== 'admin' ^ this.$auth.isAdmin()
+      if (item.admin && !this.$auth.isAdmin()) {
+        return false
+      }
+      if (item.admin === false && this.$auth.isAdmin()) {
+        return false
+      }
+      return true
     }
   }
 }
