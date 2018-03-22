@@ -7,3 +7,6 @@ server/public
 .env*
 node_modules
 server/files
+swirlds.jar
+data
+*.iml
